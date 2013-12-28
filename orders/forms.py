@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+
 from orders.models import OrderItem, SupplierOrder
 
 
@@ -44,3 +45,17 @@ class SupplierSelectIngredientsForm(forms.ModelForm):
         super(SupplierSelectIngredientsForm, self).save(commit=commit)
 
 
+class OrderItemForm(forms.ModelForm):
+    class Meta:
+        model = OrderItem
+        fields = ("quantity", )
+        widgets = {
+            'quantity': forms.widgets.TextInput(attrs={
+                "class": "form-control input-sm",
+                "value": "0"}),
+        }        
+    
+    def __init__(self, *args, **kwargs):
+        if "initial" in kwargs:
+            self.ingredient = kwargs["initial"].get("ingredient", None)
+        super(OrderItemForm, self).__init__(*args, **kwargs)

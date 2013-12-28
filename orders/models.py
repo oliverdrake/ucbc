@@ -14,7 +14,7 @@ class Supplier(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=255, blank=False)
+    name = models.CharField(max_length=255, blank=False, unique=True)
     unit_cost = models.DecimalField(
         decimal_places=2,
         max_digits=5,
@@ -40,11 +40,11 @@ class Ingredient(models.Model):
 
 
 class Grain(Ingredient):
-    pass
+    ingredient_type = "grain"
 
 
 class Hop(Ingredient):
-    pass
+    ingredient_type = "hops"
 
 
 #class AbstractOrder(models.Model):

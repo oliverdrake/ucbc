@@ -1,5 +1,7 @@
+import random
 from django.contrib.auth import get_user_model
-from orders.models import OrderItem, Ingredient, UserOrder, SupplierOrder, Supplier
+from orders.models import OrderItem, Ingredient, UserOrder, SupplierOrder, Supplier, Hop, Grain
+from orders.templatetags.currency import currency
 from nose.tools import assert_equal
 
 User = get_user_model()
@@ -8,15 +10,17 @@ User = get_user_model()
 class TestModels(object):
     @staticmethod
     def create_order_row(order, unit_cost=1.0, quantity=1, supplier_order=None):
-        ingredient = Ingredient(unit_cost=unit_cost)
+        ingredient = Ingredient(
+            unit_cost=unit_cost,
+            name="test_ingredient_%d" % random.randint(0, 999))
         ingredient.save()
-        order_row = OrderItem(
+        order_item = OrderItem(
             ingredient=ingredient,
             order=order,
             quantity=quantity,
             supplier_order=supplier_order)
-        order_row.save()
-        return order_row
+        order_item.save()
+        return order_item
 
     def test_singleingredientorder_total_gst_excl(self):
         order = UserOrder()
@@ -46,3 +50,16 @@ class TestModels(object):
         self.__class__.create_order_row(order, unit_cost=1, quantity=7, supplier_order=supplier_order)
         assert_equal(22, supplier_order.total)
 
+    def test_ingredient_type_property(self):
+        assert_equal("grain", Grain(name="grain").ingredient_type)
+        assert_equal("hops", Hop(name="hops").ingredient_type)
+
+
+class TestTemplateTags(object):
+    def test_currency(self):
+        assert_equal("$22.50", currency(22.5))
+        assert_equal("$3.00", currency(3))
+        assert_equal("-$5.00", currency(-5))
+        assert_equal("$?", currency(""))
+        assert_equal("$?", currency(None))
+        assert_equal("$0.00", currency(0))

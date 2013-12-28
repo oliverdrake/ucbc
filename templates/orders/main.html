@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block container %}
+
+<p>Through the UCBC you can get amazing deals on bulk orders of grains and hops.</p>
+
+<p>
+  We place these orders semi regularly, check our
+  <a href="https://www.facebook.com/groups/ucbrewclub/">facebook</a> page for updates.
+</p>
+
+{% if user.is_authenticated %}
+
+<div class="row">
+  <div class="col-lg-6">
+    <p class="text-center"><a href="{% url 'orders.views.grains' %}">Grains</a></p>
+  </div>
+  <div class="col-lg-6">
+    <p class="text-center"><a href="{% url 'orders.views.hops' %}">Hops</a></p>
+  </div>
+</div>
+
+{% else %}
+
+<p class="text-error">
+  You need to be a UCBC member and
+  <b><a href="{% url 'login' %}">sign in</a></b> with your credentials before you can place an
+  order for grains or hops.
+</p>
+
+{% endif %}
+
+{% endblock %}

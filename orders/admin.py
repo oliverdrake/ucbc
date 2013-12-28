@@ -29,7 +29,7 @@ class UserOrderAdmin(admin.ModelAdmin):
 class SupplierOrderAdmin(admin.ModelAdmin):
     list_display = ("id", "supplier_name", "status", "total_excl_gst")
     inlines = (ReadOnlyOrderItemInline, )
-    readonly_fields = ("total_excl_gst", "total_in_unpaid_order_items")
+    readonly_fields = ("total_excl_gst",)
 
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):

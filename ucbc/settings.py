@@ -20,7 +20,8 @@ TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '1zh-0h0eb=1@yk6+)f05(+3a2p5^l^xu*6^ho3*wffx9(#xijj'
 
-
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -28,6 +29,8 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
+
+APPEND_SLASH = True
 
 #AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 
@@ -44,12 +47,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'django.contrib.sessions',
 
     'south',
     #'shop',
     'pipeline',
     'django_extensions',
     'twitter_bootstrap',
+    'bootstrapform',
     #'django_generic_flatblocks',
     #'bootstrap_toolkit',
 
@@ -76,15 +81,22 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
-#TEMPLATE_CONTEXT_PROCESSORS = (
-#    'django.contrib.auth.context_processors.auth',
-#    'django.core.context_processors.debug',
-#    'django.core.context_processors.i18n',
-#    'django.core.context_processors.media',
-#    'django.core.context_processors.static',
-#    'django.core.context_processors.tz',
-#    'django.core.context_processors.request',
-#    'django.contrib.messages.context_processors.messages',
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.csrf',
+)
+
+#TEMPLATE_LOADERS = (
+#    'django.template.loaders.filesystem.Loader',
+#    'django.template.loaders.app_directories.Loader',
+#    'apptemplates.Loader',
 #)
 
 SITE_ID = 1
@@ -103,6 +115,8 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/

@@ -10,53 +10,39 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>UCBC</title>
 
-    <link href="{% static 'bootstrap.css' %}" type="text/css" rel="stylesheet"/>
-
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-
+    <!--<script src="http://code.jquery.com/jquery-latest.min.js"></script>-->
+    <!--<script src="bootstrap-touchspin/bootstrap.touchspin.js"></script>-->
     <style type="text/css">
       body {
-        padding-top: 50px;
+        padding-top: 70px;
       }
-      .starter-template {
-        padding: 40px 15px;
-        text-align: center;
-      }
-      #banner {
-        background-image: url("{% static 'images/header.png' %}");
-        height: 295px;
-        background-repeat: no-repeat;
-        background-position: left;
-{#        background-size: 100%;#}
-      }
-{#      .navbar-inverse {#}
-{#          background-color: #FFFFFF;#}
-{#      }#}
     </style>
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
+    <!--<script>-->
+    <!--$("input[name='demo']").TouchSpin({-->
+      <!--min: 0, // Minimum value.-->
+      <!--max: 100, // Maximum value.-->
+      <!--boostat: 5, // Boost at every nth step.-->
+      <!--maxboostedstep: 10, // Maximum step when boosted.-->
+      <!--postfix: '%', // Text after the input.-->
+      <!--prefix: '$', // Text before the input.-->
+      <!--step: 1, // Incremental/decremental step on up/down change.-->
+      <!--stepinterval: 100, // Refresh rate of the spinner in milliseconds.-->
+      <!--stepintervaldelay: 500 // Time in milliseconds before the spinner starts to spin.-->
+    <!--});-->
+    <!--</script>-->
   </head>
 
 
   <body>
   {% block body %}
 
-
-
   {% block navbar %}
   <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-
-{#      {% block banner %}#}
-{#      <div class="container" id="banner"></div>#}
-{#      {% endblock %}#}
-
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -65,15 +51,21 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-{#          <a class="navbar-brand" href="#">UCBC</a>#}
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="shop">Shop</a></li>
+            <li{% if request.path == '/' %} class="active"{% endif %}><a href="/">Home</a></li>
+            <li{% if '/orders' in request.path %} class="active"{% endif %}><a href="{% url 'orders.views.main' %}">Orders</a></li>
             {% if request.user.is_staff %}
-            <li><a href="admin">Admin</a></li>
+            <li><a href="{% url 'admin:index' %}">Admin</a></li>
             {% endif %}
+            <li>
+              {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}">Log out</a>
+              {% else %}
+                <a href="{% url 'login' %}">Log in</a>
+              {% endif %}
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -89,8 +81,6 @@
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-{#  <script src="{% static 'js/bootstrap.min.js' %}"></script>#}
-
   {% compressed_js 'bootstrap' %}
   {% endblock %}
   </body>
