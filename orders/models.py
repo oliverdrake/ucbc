@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-SUPPLIER_GLADFIELDS = "Gladfields"
-SUPPLIER_MALTEUROPE = "Malteurope"
-SUPPLIER_NZHOPS = "NZHops"
-
 
 class Supplier(models.Model):
     name = models.CharField(max_length=255)
@@ -14,6 +10,10 @@ class Supplier(models.Model):
 
 
 class Ingredient(models.Model):
+    UNIT_SIZE_KG = "Kg"
+    UNIT_SIZE_SACK = "sack"
+    UNIT_SIZE_100G = "100g"
+
     name = models.CharField(max_length=255, blank=False, unique=True)
     unit_cost = models.DecimalField(
         decimal_places=2,
@@ -23,9 +23,9 @@ class Ingredient(models.Model):
     unit_size = models.CharField(
         max_length=255,
         choices=(
-            ("Kg", "1 Kg"),
-            ("sack", "Sack (25Kg)"),
-            ("100g", "100 gram")),
+            (UNIT_SIZE_KG, "1 Kg"),
+            (UNIT_SIZE_SACK, "Sack (25Kg)"),
+            (UNIT_SIZE_100G, "100 gram")),
         blank=False, null=True)
     supplier = models.ForeignKey(Supplier, related_name="ingredients", blank=False, null=True, default=None)
 
