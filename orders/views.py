@@ -2,7 +2,7 @@ from http.client import OK, CREATED, BAD_REQUEST
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.forms.models import modelformset_factory, BaseModelFormSet
+from django.forms.models import modelformset_factory, BaseModelFormSet, inlineformset_factory, BaseInlineFormSet
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response, render
 from django.forms.formsets import formset_factory, BaseFormSet
@@ -11,12 +11,37 @@ from django.views.generic import TemplateView
 
 from orders import models
 from orders.forms import CartItemForm
+from orders.utils import get_ingredient
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
 
 
 def main(request):
     return render_to_response('orders/main.html', context_instance=RequestContext(request))
+
+
+def create_cart_formset(request, user_order=None):
+    cart = _get_cart_from_session(request)
+    initial = [dict(ingredient=get_ingredient(name), quantity=q) for name, q in cart.items()]
+    OrderItemFormset = inlineformset_factory(
+        models.UserOrder,
+        models.OrderItem,
+        extra=len(initial),
+        max_num=len(initial),
+        fields=("quantity", "ingredient"),
+        widgets={
+            "ingredient": forms.HiddenInput(),
+            "quantity": forms.HiddenInput(),
+        })
+    data = request.POST if request.POST else None
+    if not user_order:
+        user_order = models.UserOrder(user=request.user)
+    cart_formset = OrderItemFormset(
+        data=data,
+        instance=user_order,
+        initial=initial,
+        prefix="cart")
+    return cart_formset
 
 
 class OrderIngredientView(TemplateView):
@@ -36,16 +61,18 @@ class OrderIngredientView(TemplateView):
 
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        formset = self.formset_class(initial=self.initial)
+        ingredient_formset = self.formset_class(initial=self.initial, prefix="ingredients")
+        cart_formset = create_cart_formset(request)
         return render(
             request,
             'orders/ingredient_list.html', {
                 'title': self.title,
-                'formset': formset})
+                'ingredient_formset': ingredient_formset,
+                'cart_formset': cart_formset})
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        formset = self.formset_class(request.POST, initial=self.initial)
+        formset = self.formset_class(request.POST, initial=self.initial, prefix="ingredients")
         if formset.is_valid():
             self.__class__._update_session(formset, request)
             return HttpResponseRedirect('')
@@ -80,7 +107,8 @@ class Hops(OrderIngredientView):
 @require_POST
 @login_required
 def review_order(request):
-    return render(request, 'orders/review_cart.html')
+    cart_formset = create_cart_formset(request)
+    return render(request, 'orders/review_cart.html', {'cart_formset': cart_formset})
 
 
 @require_POST
@@ -88,42 +116,20 @@ def review_order(request):
 def checkout(request):
     # ToDo: check that order has been reviewed!
     # ToDo: Email user a summary
-
-    def validate(data):
-        for ingredient_name, quantity in data.items():
-            try:
-                quantity = int(quantity)
-                if quantity < 0:
-                    break
-                ingredient = _get_ingredient(ingredient_name)
-            except ValueError:
-                break
-            except models.Grain.DoesNotExist:
-                break
-            except models.Hop.DoesNotExist:
-                break
-        else:
-            return True
-        return False
-
-    cart = _get_cart_from_session(request)
-    if validate(cart):
-        order = models.UserOrder.objects.create(user=request.user)
-        for name, quantity in cart.items():
-            ingredient = _get_ingredient(name)
-            models.OrderItem.objects.create(
-                ingredient=ingredient,
-                quantity=int(quantity),
-                order=order)
+    user_order = models.UserOrder.objects.create(user=request.user)
+    formset = create_cart_formset(request, user_order)
+    if formset.is_valid():
+        formset.save()
         del request.session['cart']
         request.session.modified = True
-        return HttpResponseRedirect(redirect_to=reverse('order_complete'))
+        return HttpResponseRedirect(redirect_to=reverse('order_complete', args=(formset.instance.id,)))
+    user_order.delete()
     # ToDo: email admin on failure
     return HttpResponseBadRequest('Could not complete your order')
 
 
-def order_complete(request):
-    return render(request, 'orders/order_complete.html')
+def order_complete(request, order_id):
+    return render(request, 'orders/order_complete.html', {'order_id': order_id})
 
 
 @require_POST
@@ -140,7 +146,3 @@ def cart_delete_item(request):
 
 def _get_cart_from_session(request):
     return request.session.setdefault('cart', {})
-
-
-def _get_ingredient(name):
-    return models.Grain.objects.get(name=name)

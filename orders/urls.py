@@ -9,5 +9,5 @@ urlpatterns = patterns('',
     url(r'^cart/review/$', 'orders.views.review_order', name='review_order'),
     url(r'^cart/delete/$', 'orders.views.cart_delete_item', name='remove_item'),
     url(r'^cart/$', 'orders.views.checkout', name='checkout'),
-    url(r'^complete/$', 'orders.views.order_complete', name='order_complete'),
+    url(r'^complete/(?P<order_id>\d+)/$', 'orders.views.order_complete', name='order_complete'),
 )

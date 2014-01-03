@@ -16,7 +16,7 @@ class TestModels(object):
         ingredient.save()
         order_item = OrderItem(
             ingredient=ingredient,
-            order=order,
+            user_order=order,
             quantity=quantity,
             supplier_order=supplier_order)
         order_item.save()

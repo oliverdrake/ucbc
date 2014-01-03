@@ -12,6 +12,8 @@ def currency(value):
         return locale.currency(float(value), grouping=True)
     except TypeError:
         return "$?"
+    except ValueError:
+        return "$?"
 
 
 @register.filter()

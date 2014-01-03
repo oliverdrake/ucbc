@@ -10,7 +10,6 @@ from django_nose.tools import assert_ok, assert_code
 from django_webtest import WebTest
 from nose.tools import raises
 from webtest import AppError
-from orders.forms import OrderItemForm
 
 from orders.models import Grain, Supplier, Hop
 
@@ -73,9 +72,10 @@ class TestGrainsGet(_IngredientGetBase):
         self.client.login(username='temporary', password='temporary')
         response = self.client.get(self.url)
         assert_ok(response)
-        formset_ = response.context['formset']
-        ingredients = [f.ingredient for f in formset_]
-        self.assertIn(self.munich, ingredients)
+        formset_ = response.context['ingredient_formset']
+
+        ingredient_names = [f.initial.get('ingredient_name') for f in formset_]
+        self.assertIn(self.munich.name, ingredient_names)
 
 
 class TestGrainsPost(_IngredientPostBase):
@@ -83,20 +83,21 @@ class TestGrainsPost(_IngredientPostBase):
         self._login()
         response = self.app.get(ORDER_GRAINS_URL)
         add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['form-0-quantity'] = 5
+        add_grain_to_order_form['ingredients-0-quantity'] = 5
         response = add_grain_to_order_form.submit()
-        assert_code(response, CREATED)
+        self.assertRedirects(response, ORDER_GRAINS_URL)
+        response = response.follow()
 
         cart_form = response.forms.get(1)
-        self.assertEqual("Munich", cart_form.get('ingredient_name').value)
-        self.assertEqual('5', cart_form.get('quantity').value)
+        self.assertEqual(str(self.munich.id), cart_form.get('cart-0-ingredient').value)
+        self.assertEqual('5', cart_form.get('cart-0-quantity').value)
 
     @raises(AppError)
     def test_post_invalid_data_returns_400(self):
         self._login()
         response = self.app.get(ORDER_GRAINS_URL)
         add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['form-0-quantity'] = "bad_quantity"
+        add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
         add_grain_to_order_form.submit()
 
 
@@ -107,9 +108,9 @@ class TestHopsGet(_IngredientGetBase):
         self.client.login(username='temporary', password='temporary')
         response = self.client.get(self.url)
         assert_ok(response)
-        formset_ = response.context['formset']
-        ingredients = [f.ingredient for f in formset_]
-        self.assertIn(self.sauvin, ingredients)
+        formset_ = response.context['ingredient_formset']
+        ingredient_names = [f.initial.get('ingredient_name') for f in formset_]
+        self.assertIn(self.sauvin.name, ingredient_names)
 
 
 class TestHopsPost(_IngredientPostBase):
@@ -117,18 +118,19 @@ class TestHopsPost(_IngredientPostBase):
         self._login()
         response = self.app.get(ORDER_HOPS_URL)
         add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['form-0-quantity'] = 5
+        add_grain_to_order_form['ingredients-0-quantity'] = 5
         response = add_grain_to_order_form.submit()
-        assert_code(response, CREATED)
+        self.assertRedirects(response, ORDER_HOPS_URL)
+        response = response.follow()
 
         cart_form = response.forms.get(1)
-        self.assertEqual("Nelson Sauvin", cart_form.get('ingredient_name').value)
-        self.assertEqual('5', cart_form.get('quantity').value)
+        self.assertEqual(str(self.sauvin.id), cart_form.get('cart-0-ingredient').value)
+        self.assertEqual('5', cart_form.get('cart-0-quantity').value)
 
     @raises(AppError)
     def test_post_invalid_data_returns_400(self):
         self._login()
         response = self.app.get(ORDER_HOPS_URL)
         add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['form-0-quantity'] = "bad_quantity"
+        add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
         add_grain_to_order_form.submit()

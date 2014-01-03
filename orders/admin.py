@@ -43,10 +43,10 @@ def remove_from_supplier_orders(modeladmin, request, queryset):
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("ingredient", "quantity", "unit_size", "order", "supplier_order", "paid")
+    list_display = ("ingredient", "quantity", "unit_size", "user_order", "supplier_order", "paid")
     list_per_page = 200
-    list_filter = ("ingredient__supplier__name", "order__status")
-    readonly_fields = ("order", )
+    list_filter = ("ingredient__supplier__name", "user_order__status")
+    readonly_fields = ("user_order", )
     actions = (remove_from_supplier_orders, )
 
     def get_actions(self, request):

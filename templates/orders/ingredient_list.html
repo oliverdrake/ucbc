@@ -8,7 +8,7 @@
     {% block ingredients %}
     <h3>{{ title }}</h3>
     <form method="post" action="">{% csrf_token %}
-    {{ formset.management_form }}
+    {{ ingredient_formset.management_form }}
       <table class="table">
         <thead>
           <tr class="row">
@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for form in formset %}
+          {% for form in ingredient_formset %}
 {#            {{ form }}#}
           <tr class="row">
             <td class="col-md-7">{{ form.ingredient_name }}{{ form.ingredient_name.value }}</td>

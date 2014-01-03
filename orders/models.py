@@ -133,7 +133,7 @@ class OrderItem(models.Model):
         default=STATUS_PENDING)
     ingredient = models.ForeignKey(Ingredient, related_name="single_ingredient_orders", blank=False)
     quantity = models.PositiveIntegerField(blank=False)
-    order = models.ForeignKey(UserOrder, related_name="ingredient_orders", blank=False)
+    user_order = models.ForeignKey(UserOrder, related_name="ingredient_orders", blank=False)
     supplier_order = models.ForeignKey(
         SupplierOrder,
         related_name="ingredient_orders",
@@ -157,7 +157,7 @@ class OrderItem(models.Model):
         return self.quantity * self.ingredient.unit_cost
 
     def username(self):
-        return self.order.username()
+        return self.user_order.username()
 
     def unit_size(self):
         return self.ingredient.unit_size
@@ -166,4 +166,4 @@ class OrderItem(models.Model):
         return self.ingredient.unit_cost
 
     def paid(self):
-        return self.order.status
+        return self.user_order.status

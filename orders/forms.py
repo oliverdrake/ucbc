@@ -48,7 +48,7 @@ class SupplierSelectIngredientsForm(forms.ModelForm):
 
 
 # class OrderItemForm(forms.ModelForm):
-    
+
 
 
 class CartItemForm(forms.Form):
