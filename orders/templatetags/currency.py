@@ -9,7 +9,7 @@ from orders import utils
 @register.filter()
 def currency(value):
     try:
-        return locale.currency(value, grouping=True)
+        return locale.currency(float(value), grouping=True)
     except TypeError:
         return "$?"
 

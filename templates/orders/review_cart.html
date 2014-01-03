@@ -2,7 +2,8 @@
 
 {% block container %}
 
-{% include 'orders/cart.html' with cart_title='Please review your order:' %}
+{% url 'checkout' as cart_url %}
+{% include 'orders/cart.html' with cart_title='Please review your order:' cart_form_url=cart_url cart_sub_but_text='Confirm' %}
 
 {% endblock %}
 
