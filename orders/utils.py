@@ -12,7 +12,3 @@ def get_ingredient(name):
         return models.Grain.objects.get(name=name)
     except models.Grain.DoesNotExist:
         return models.Hop.objects.get(name=name)
-
-
-def get_ingredient_name(ingredient_id):
-    return models.Ingredient.objects.get(id=ingredient_id).name

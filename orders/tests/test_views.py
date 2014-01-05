@@ -46,7 +46,6 @@ class _IngredientGetBase(TestCase, _CommonMixin):
 
     def test_not_logged_in_redirected_to_login_page(self):
         expected_url = "%s?next=%s" % (reverse('login'), self.url)
-        print(expected_url)
         response = self.client.get(self.url)
         self.assertRedirects(response, expected_url)
         response = self.client.post(self.url, data={})

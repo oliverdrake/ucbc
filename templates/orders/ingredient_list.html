@@ -4,7 +4,7 @@
 {% block container %}
 
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-7">
     {% block ingredients %}
     <h3>{{ title }}</h3>
     <form method="post" action="">{% csrf_token %}
@@ -19,7 +19,6 @@
         </thead>
         <tbody>
           {% for form in ingredient_formset %}
-{#            {{ form }}#}
           <tr class="row">
             <td class="col-md-7">{{ form.ingredient_name }}{{ form.ingredient_name.value }}</td>
             <td class="col-md-4">{{ form.unit_cost}}{{form.unit_cost.value|currency }} per
@@ -45,7 +44,7 @@
   </div>
 
   {% block cart %}
-  <div class="col-md-4">
+  <div class="col-md-5">
     {% url 'review_order' as cart_url %}
     {% include 'orders/cart.html' with cart_title='My Order' cart_form_url=cart_url cart_sub_but_text='checkout'%}
   {% endblock %}

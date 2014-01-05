@@ -80,7 +80,7 @@ class OrderIngredientView(TemplateView):
             request,
             'orders/ingredient_list.html', {
                 'title': self.title,
-                'formset': formset},
+                'ingredient_formset': formset},
             status=BAD_REQUEST)
 
     @property
@@ -121,7 +121,6 @@ def checkout(request):
     if formset.is_valid():
         formset.save()
         del request.session['cart']
-        request.session.modified = True
         return HttpResponseRedirect(redirect_to=reverse('order_complete', args=(formset.instance.id,)))
     user_order.delete()
     # ToDo: email admin on failure
@@ -138,6 +137,7 @@ def cart_delete_item(request):
     cart = _get_cart_from_session(request)
     ingredient_name = request.POST.get('ingredient_name')
     if ingredient_name not in cart:
+        # ToDo: template
         return HttpResponseBadRequest()
     del cart[ingredient_name]
     request.session.modified = True
