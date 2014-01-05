@@ -106,7 +106,8 @@ class UserOrder(models.Model):
 
     @property
     def total(self):
-        return sum([o.total for o in self.ingredient_orders.all()])
+        # ToDo: might be worth moving this into sql
+        return sum([o.total for o in self.order_items.all()])
 
     def username(self):
         return self.user.username
@@ -133,7 +134,7 @@ class OrderItem(models.Model):
         default=STATUS_PENDING)
     ingredient = models.ForeignKey(Ingredient, related_name="single_ingredient_orders", blank=False)
     quantity = models.PositiveIntegerField(blank=False)
-    user_order = models.ForeignKey(UserOrder, related_name="ingredient_orders", blank=False)
+    user_order = models.ForeignKey(UserOrder, related_name="order_items", blank=False)
     supplier_order = models.ForeignKey(
         SupplierOrder,
         related_name="ingredient_orders",
