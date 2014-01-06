@@ -21,8 +21,10 @@
       {% unit_size_plural form.ingredient.value form.quantity.value as quantity %}
       <td class="col-sm-2">{{ form.quantity }}{{ quantity }}</td>
       {% order_item_total form.ingredient.value form.quantity.value as total %}
-      <td class="col-sm-2" style="vertical-align: middle">{{ total|add_gst|currency }}</td>
-      <td class="col-sm-1"><button name="ingredient_id" type="submit" value="{{ form.ingredient.value }}" formaction="{% url 'remove_item' %}" class="btn btn-default btn-sm">X</button></td>
+      <td class="col-sm-2">{{ total|add_gst|currency }}</td>
+      <td class="col-sm-1">
+        <button name="ingredient_id" type="submit" value="{{ form.ingredient.value }}" formaction="{% url 'remove_item' %}" class="btn btn-default btn-sm">X</button>
+      </td>
     </tr>
   {% endfor %}
     <tr class="row">
