@@ -29,6 +29,24 @@ class Ingredient(models.Model):
         blank=False, null=True)
     supplier = models.ForeignKey(Supplier, related_name="ingredients", blank=False, null=True, default=None)
 
+    @staticmethod
+    def unit_size_plural(unit_size, quantity):
+        quantity = int(quantity)
+        if quantity <= 0:
+            raise ValueError("invalid quantity: %d" % quantity)
+        if unit_size in (Ingredient.UNIT_SIZE_SACK, Ingredient.UNIT_SIZE_KG):
+            if quantity is not 1:
+                unit_size = unit_size + "s"
+            return "%d %s" % (quantity, unit_size)
+        elif unit_size == Ingredient.UNIT_SIZE_100G:
+            if quantity < 10:
+                return "%d00 grams" % quantity
+            else:
+                quantity = float(quantity) / 10
+                return "%3.1f Kg" % quantity
+        else:
+            raise ValueError("invalid unit size: %s" % unit_size)
+
     def supplier_name(self):
         return self.supplier.name
 

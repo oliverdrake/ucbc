@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from http.client import CREATED, OK, BAD_REQUEST
 from unittest import skip
 from django.contrib.auth.models import User
@@ -133,3 +134,28 @@ class TestHopsPost(_IngredientPostBase):
         add_grain_to_order_form = response.forms.get(0)
         add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
         add_grain_to_order_form.submit()
+
+
+class TestCartDeleteItem(_IngredientPostBase):
+    def test_happy_path(self):
+        self._login()
+        # Add some hops to cart:
+        response = self.app.get(ORDER_HOPS_URL)
+        add_grain_to_order_form = response.forms.get(0)
+        add_grain_to_order_form['ingredients-0-quantity'] = 5
+        response = add_grain_to_order_form.submit()
+        self.assertRedirects(response, ORDER_HOPS_URL)
+        response = response.follow()
+
+        cart_form = response.forms.get(1)
+        self.assertEqual(str(self.sauvin.id), cart_form.get('cart-0-ingredient').value)
+        self.assertEqual('5', cart_form.get('cart-0-quantity').value)
+
+        # delete from cart:
+        params=cart_form.submit_fields()
+        params.append(('ingredient_id', self.sauvin.id))
+        response.goto(reverse('remove_item'), method='post', params=params)
+        assert_ok(response)
+        response = self.app.get(ORDER_HOPS_URL)
+        cart_form = response.forms.get(1)
+        self.assertNotIn('cart-0-ingredient', cart_form.fields)

@@ -2,6 +2,8 @@
 
 {% block container %}
 
+<h3>About</h3>
+
 <p>Through the UCBC you can get amazing deals on bulk orders of grains and hops.</p>
 
 <p>
@@ -11,14 +13,17 @@
 
 {% if user.is_authenticated %}
 
-<div class="row">
-  <div class="col-lg-6">
-    <p class="text-center"><a href="{% url 'order_grain' %}">Grains</a></p>
-  </div>
-  <div class="col-lg-6">
-    <p class="text-center"><a href="{% url 'order_hops' %}">Hops</a></p>
-  </div>
-</div>
+To get started, start adding some <a href="{% url 'order_grain' %}">Grains</a> or
+<a href="{% url 'order_hops' %}">Hops</a> to your order.
+
+{#<div class="row">#}
+{#  <div class="col-lg-6">#}
+{#    <p class="text-center"><a href="{% url 'order_grain' %}">Grains</a></p>#}
+{#  </div>#}
+{#  <div class="col-lg-6">#}
+{#    <p class="text-center"><a href="{% url 'order_hops' %}">Hops</a></p>#}
+{#  </div>#}
+{#</div>#}
 
 {% else %}
 

@@ -1,4 +1,5 @@
 from http.client import OK, CREATED, BAD_REQUEST
+import logging
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -14,6 +15,8 @@ from orders.forms import CartItemForm
 from orders.utils import get_ingredient
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
+
+log = logging.getLogger(__name__)
 
 
 def main(request):
@@ -135,13 +138,17 @@ def order_complete(request, order_id):
 @login_required
 def cart_delete_item(request):
     cart = _get_cart_from_session(request)
-    ingredient_name = request.POST.get('ingredient_name')
-    if ingredient_name not in cart:
-        # ToDo: template
-        return HttpResponseBadRequest()
-    del cart[ingredient_name]
-    request.session.modified = True
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    try:
+        ingredient_id = int(request.POST.get('ingredient_id'))
+        ingredient_name = models.Ingredient.objects.get(id=ingredient_id).name
+        if ingredient_name in cart:
+            del cart[ingredient_name]
+            request.session.modified = True
+    except KeyError:
+        log.error("cart_delete_item: no ingredient_id key in POST data. POST: %s" % request.POST)
+    if 'HTTP_REFERER' in request.META:
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponse()
 
 
 def _get_cart_from_session(request):

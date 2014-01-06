@@ -13,7 +13,7 @@
         <thead>
           <tr class="row">
             <th class="col-md-7">Name</th>
-            <th class="col-md-4">Cost (NZD) Excl. GST</th>
+            <th class="col-md-4">Cost (NZD) Incl. GST</th>
             <th class="col-md-1"></th>
           </tr>
         </thead>
@@ -21,7 +21,7 @@
           {% for form in ingredient_formset %}
           <tr class="row">
             <td class="col-md-7">{{ form.ingredient_name }}{{ form.ingredient_name.value }}</td>
-            <td class="col-md-4">{{ form.unit_cost}}{{form.unit_cost.value|currency }} per
+            <td class="col-md-4">{{ form.unit_cost}}{{form.unit_cost.value|add_gst|currency }} per
               {{ form.unit_size }}{{ form.unit_size.value }}</td>
             <td class="col-md-1">
               {{ form.quantity.errors }}
@@ -48,6 +48,7 @@
     {% url 'review_order' as cart_url %}
     {% include 'orders/cart.html' with cart_title='My Order' cart_form_url=cart_url cart_sub_but_text='checkout'%}
   {% endblock %}
-
+  </div>
 </div>
+
 {% endblock %}
