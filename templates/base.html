@@ -12,74 +12,96 @@
 
     <title>UCBC</title>
 
-
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
     <style type="text/css">
       body {
-        padding-top: 100px;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        padding-top: 200px;
       }
 
-      .table > tbody > tr > td[class*="col-"] {
-        vertical-align: middle; !important
+      .navbar-collapse {
+          margin-top: 20px;
+      }
+
+      img.resize{
+        width: auto;
+        height: auto;
       }
     </style>
 
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
   </head>
-
-
   <body>
   {% block body %}
 
   {% block navbar %}
   <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-3" style="width: auto">
+          <a href="/">
+            <img class="img-responsive resize" src="/static/images/logo_med.png">
+          </a>
         </div>
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li{% if request.path == '/' %} class="active"{% endif %}>
-              <a href="/">Home</a>
-            </li>
-            <li {% if '/orders' in request.path %} class="active"{% endif %} class="dropdown" id="ordersmenu">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Orders<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a href="{% url 'order_grain' %}">Grains</a>
+        <div class="col-sm-9">
+          <div class="row">
+            <div style="color: #ffffff; padding-top: 30px"><h1>University of Canterbury Brew Club</h1></div>
+          </div>
+
+          <div class="row">
+
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            </div>
+
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+              <ul class="nav navbar-nav navbar-left">
+                <li{% if request.path == '/' %} class="active"{% endif %}>
+                  <a href="/">Home</a>
                 </li>
-                <li>
-                  <a href="{% url 'order_hops' %}">Hops</a>
+                <li {% if '/orders' in request.path %} class="active"{% endif %} class="dropdown" id="ordersmenu">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Orders<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'order_grain' %}">Grains</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'order_hops' %}">Hops</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                      <a href="{% url 'orders.views.main' %}">About</a>
+                    </li>
+                  </ul>
                 </li>
-                <li class="divider"></li>
+                {% if request.user.is_staff %}
                 <li>
-                  <a href="{% url 'orders.views.main' %}">About</a>
+                  <a href="{% url 'admin:index' %}">Admin</a>
+                </li>
+                {% endif %}
+                <li>
+                {% if user.is_authenticated %}
+                  <a href="{% url 'logout' %}">Log out</a>
+                {% else %}
+                  <a href="{% url 'login' %}">Log in</a>
+                {% endif %}
                 </li>
               </ul>
-            </li>
-            {% if request.user.is_staff %}
-            <li>
-              <a href="{% url 'admin:index' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li>
-            {% if user.is_authenticated %}
-              <a href="{% url 'logout' %}">Log out</a>
-            {% else %}
-              <a href="{% url 'login' %}">Log in</a>
-            {% endif %}
-            </li>
-          </ul>
-
-        </div><!--/.nav-collapse -->
+            </div><!--/.nav-collapse -->
+          </div>
+        </div>
       </div>
     </div>
+  </div>
   {% endblock %}
 
   <div class="container">
