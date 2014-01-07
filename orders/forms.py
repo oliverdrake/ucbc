@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.forms.models import BaseInlineFormSet
 
-from orders.models import OrderItem, SupplierOrder
+from orders.models import OrderItem, SupplierOrder, Ingredient
 
 
 class SelectIngredientOrderWidget(FilteredSelectMultiple):
@@ -39,3 +40,20 @@ class CartItemForm(forms.Form):
         "class": "form-control input-sm",
         "value": "0"}))
 
+
+class OrderItemFormset(BaseInlineFormSet):
+    def clean(self):
+        super(OrderItemFormset, self).clean()
+        # Dirty hack as I can't get inline formsets to work
+        for i, form in enumerate(self.forms):
+            prefix = '%s-%d-' % (self.prefix, i)
+            ingredient_id = int(form.data.get(prefix + "ingredient"))
+            quantity = int(form.data.get(prefix + "quantity"))
+            form.instance.ingredient = Ingredient.objects.get(id=ingredient_id)
+            form.instance.quantity = quantity
+
+    def save(self, commit=True):
+        super(OrderItemFormset, self).save(commit=commit)
+        for form in self.forms:
+            if form.is_valid():
+                form.save()

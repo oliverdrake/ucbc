@@ -9,6 +9,6 @@ def add_gst(amount):
 
 def get_ingredient(name):
     try:
-        return models.Grain.objects.get(name=name)
-    except models.Grain.DoesNotExist:
         return models.Hop.objects.get(name=name)
+    except models.Hop.DoesNotExist:
+        return models.Grain.objects.get(name=name)

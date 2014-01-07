@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
 from orders import models
-from orders.forms import CartItemForm
+from orders.forms import CartItemForm, OrderItemFormset
 from orders.utils import get_ingredient
 from orders.utils import add_gst
 from django.template import RequestContext
@@ -29,9 +29,10 @@ def main(request):
 def create_cart_formset(request, user_order=None):
     cart = _get_cart_from_session(request)
     initial = [dict(ingredient=get_ingredient(name), quantity=q) for name, q in cart.items()]
-    OrderItemFormset = inlineformset_factory(
+    Formset = inlineformset_factory(
         models.UserOrder,
         models.OrderItem,
+        formset=OrderItemFormset,
         extra=len(initial),
         max_num=len(initial),
         fields=("quantity", "ingredient"),
@@ -42,7 +43,7 @@ def create_cart_formset(request, user_order=None):
     data = request.POST if request.POST else None
     if not user_order:
         user_order = models.UserOrder(user=request.user)
-    cart_formset = OrderItemFormset(
+    cart_formset = Formset(
         data=data,
         instance=user_order,
         initial=initial,
@@ -136,7 +137,7 @@ def checkout(request):
     user_order = models.UserOrder.objects.create(user=request.user)
     formset = create_cart_formset(request, user_order)
     if formset.is_valid():
-        items = formset.save()
+        formset.save()
         del request.session['cart']
         _email_order_confirmation(request, user_order)
         return HttpResponseRedirect(redirect_to=reverse('order_complete', args=(formset.instance.id,)))

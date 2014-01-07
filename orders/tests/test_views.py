@@ -198,3 +198,4 @@ class TestCheckout(_IngredientPostBase):
             [self.user.email],
             fail_silently=True
         )
+        self.assertGreater(UserOrder.objects.get(id=order_number).total, 0)
