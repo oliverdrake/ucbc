@@ -1,5 +1,4 @@
 {% load static from staticfiles %}
-{% load compressed %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +47,7 @@
       <div class="row">
         <div class="col-sm-3" style="width: auto">
           <a href="/">
-            <img class="img-responsive resize" src="/static/images/logo_med.png">
+            <img class="img-responsive resize" src="{% static 'logo_med.png' %}">
           </a>
         </div>
         <div class="col-sm-9">
