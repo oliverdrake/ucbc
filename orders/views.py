@@ -120,7 +120,11 @@ def review_order(request):
 
 CONFIRMATION_EMAIL = """Thank you for your order, your order number is %(order_number)d.
 
-Please pay the total of $%(total)2.2f into our account ASAP: %(account_number)s using your order number as a reference.
+Please pay the total of $%(total)2.2f into our account as as you can as we won't include orders that
+haven't been payed.
+
+Bank Account Number: %(account_number)s
+Make sure you include your order number as a reference.
 
 Keep an eye on our facebook group to get updates on the status of our orders.
 

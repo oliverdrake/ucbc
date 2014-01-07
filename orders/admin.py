@@ -33,9 +33,9 @@ class SupplierOrderAdmin(admin.ModelAdmin):
 
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):
-    if queryset.filter(order__status=UserOrder.STATUS_UNPAID).count() > 0:
+    if queryset.filter(user_order__status=UserOrder.STATUS_UNPAID).count() > 0:
         messages.warning(request, "Some order items selected could not be added to supplier order as they havn't been paid for")
-    queryset.filter(order__status=UserOrder.STATUS_PAID).update(supplier_order=supplier_order)
+    queryset.filter(user_order__status=UserOrder.STATUS_PAID).update(supplier_order=supplier_order)
 
 
 def remove_from_supplier_orders(modeladmin, request, queryset):
