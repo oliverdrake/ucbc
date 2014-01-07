@@ -5,17 +5,22 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.backends.dummy.base import ignore
 from django.forms.formsets import formset_factory
+from django.conf import settings
 from django.test.client import Client
 from django.test import TestCase
 from django_nose.tools import assert_ok, assert_code
 from django_webtest import WebTest
+import mock
 from nose.tools import raises
 from webtest import AppError
 
-from orders.models import Grain, Supplier, Hop
+from orders.models import Grain, Supplier, Hop, UserOrder
+from orders import utils
+from orders.views import CONFIRMATION_EMAIL
 
 ORDER_GRAINS_URL = reverse('order_grain')
 ORDER_HOPS_URL = reverse('order_hops')
+CHECKOUT_URL = reverse('checkout')
 
 
 class _CommonMixin(object):
@@ -159,3 +164,37 @@ class TestCartDeleteItem(_IngredientPostBase):
         response = self.app.get(ORDER_HOPS_URL)
         cart_form = response.forms.get(1)
         self.assertNotIn('cart-0-ingredient', cart_form.fields)
+
+
+class TestCheckout(_IngredientPostBase):
+    @mock.patch('django.core.mail.send_mail')
+    def test_email_sent(self, send_mail):
+        self._login()
+        # Add some hops to cart:
+        response = self.app.get(ORDER_HOPS_URL)
+        add_grain_to_order_form = response.forms.get(0)
+        add_grain_to_order_form['ingredients-0-quantity'] = 5
+        response = add_grain_to_order_form.submit()
+        self.assertRedirects(response, ORDER_HOPS_URL)
+        response = response.follow()
+
+        cart_form = response.forms.get(1)
+        self.assertEqual(str(self.sauvin.id), cart_form.get('cart-0-ingredient').value)
+        self.assertEqual('5', cart_form.get('cart-0-quantity').value)
+
+        response = cart_form.submit()
+        cart_form = response.forms.get(0)
+        response = cart_form.submit()
+        order_number = UserOrder.objects.count()
+        message = CONFIRMATION_EMAIL % dict(
+            order_number=order_number,
+            total=utils.add_gst(UserOrder.objects.get(id=order_number).total),
+            account_number=settings.ACCOUNT_NUMBER,
+        )
+        send_mail.assert_called_once_with(
+            'Your UCBC Order #%d' % order_number,
+            message,
+            None,
+            [self.user.email],
+            fail_silently=True
+        )

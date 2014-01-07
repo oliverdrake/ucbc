@@ -1,7 +1,9 @@
 from http.client import OK, CREATED, BAD_REQUEST
 import logging
 from django import forms
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory, BaseModelFormSet, inlineformset_factory, BaseInlineFormSet
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
@@ -13,6 +15,7 @@ from django.views.generic import TemplateView
 from orders import models
 from orders.forms import CartItemForm
 from orders.utils import get_ingredient
+from orders.utils import add_gst
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
 
@@ -114,6 +117,17 @@ def review_order(request):
     return render(request, 'orders/review_cart.html', {'cart_formset': cart_formset})
 
 
+CONFIRMATION_EMAIL = """Thank you for your order, your order number is %(order_number)d.
+
+Please pay the total of $%(total)2.2f into our account ASAP: %(account_number)s using your order number as a reference.
+
+Keep an eye on our facebook group to get updates on the status of our orders.
+
+Happy brewing,
+
+The UCBC Team.
+"""
+
 @require_POST
 @login_required
 def checkout(request):
@@ -122,12 +136,27 @@ def checkout(request):
     user_order = models.UserOrder.objects.create(user=request.user)
     formset = create_cart_formset(request, user_order)
     if formset.is_valid():
-        formset.save()
+        items = formset.save()
         del request.session['cart']
+        _email_order_confirmation(request, user_order)
         return HttpResponseRedirect(redirect_to=reverse('order_complete', args=(formset.instance.id,)))
     user_order.delete()
     # ToDo: email admin on failure
     return HttpResponseBadRequest('Could not complete your order')
+
+
+def _email_order_confirmation(request, user_order):
+    message = CONFIRMATION_EMAIL % dict(
+        order_number=user_order.id,
+        total=add_gst(user_order.total),
+        account_number=settings.ACCOUNT_NUMBER,
+    )
+    mail.send_mail(
+        'Your UCBC Order #%d' % user_order.id,
+        message,
+        None,
+        [request.user.email,],
+        fail_silently=True)
 
 
 def order_complete(request, order_id):

@@ -32,6 +32,13 @@ ALLOWED_HOSTS = ['127.0.0.1']
 
 APPEND_SLASH = True
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@ucbc.org.nz'
+EMAIL_HOST_PASSWORD = open(".ucbc_email_password", 'r').read()
+DEFAULT_FROM_EMAIL = 'admin@ucbc.org.nz'
+
 #AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 
 # Application definition
@@ -133,6 +140,7 @@ USE_TZ = True
 
 ADMIN_URL_PREFIX = "/admin/"
 
+ACCOUNT_NUMBER = "1-2-3"
 
 INTERNAL_IPS = ("127.0.0.1", "localhost")
 
