@@ -141,7 +141,6 @@ def _email_order_confirmation(request, user_order):
     message = FlatBlock.objects.get(slug='orders.email.confirmation').content % dict(
         order_number=user_order.id,
         total=add_gst(user_order.total),
-        account_number=settings.ACCOUNT_NUMBER,
     )
     mail.send_mail(
         'Your UCBC Order #%d' % user_order.id,

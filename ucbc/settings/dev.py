@@ -1,5 +1,5 @@
 from .base import *
-from .secret import EMAIL_HOST_PASSWORD, ACCOUNT_NUMBER, SECRET_KEY
+from .secret import EMAIL_HOST_PASSWORD, SECRET_KEY
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 DEBUG = True

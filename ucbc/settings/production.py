@@ -1,5 +1,5 @@
 from .base import *
-from .secret import ACCOUNT_NUMBER, EMAIL_HOST_PASSWORD, SECRET_KEY
+from .secret import EMAIL_HOST_PASSWORD, SECRET_KEY
 
 ALLOWED_HOSTS = ['.amazonaws.com']
 

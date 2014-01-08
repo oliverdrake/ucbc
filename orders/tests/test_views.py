@@ -171,7 +171,7 @@ class TestCheckout(_IngredientPostBase):
         from flatblocks.models import FlatBlock
         email_message = FlatBlock.objects.create(
             slug='orders.email.confirmation',
-            content="Order %(order_number)s, acc: %(account_number)s, total: $%(total)s").content
+            content="Order %(order_number)s, total: $%(total)s").content
 
         self._login()
         # Add some hops to cart:
@@ -194,7 +194,6 @@ class TestCheckout(_IngredientPostBase):
         message = email_message % dict(
             order_number=order_number,
             total=utils.add_gst(UserOrder.objects.get(id=order_number).total),
-            account_number=settings.ACCOUNT_NUMBER,
         )
         send_mail.assert_called_once_with(
             'Your UCBC Order #%d' % order_number,
