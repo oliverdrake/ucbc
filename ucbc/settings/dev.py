@@ -2,7 +2,7 @@ from .base import *
 from .secret import EMAIL_HOST_PASSWORD, ACCOUNT_NUMBER, SECRET_KEY
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-DEBUG = False
+DEBUG = True
 
 INSTALLED_APPS += (
     'debug_toolbar',
