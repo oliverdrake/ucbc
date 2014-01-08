@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 from django.contrib.auth.forms import AuthenticationForm
+from django.conf import settings
 
 AuthenticationForm.base_fields['username'].widget.attrs['class'] = "form-control input-sm"
 AuthenticationForm.base_fields['username'].widget.attrs['placeholder'] = 'Username'

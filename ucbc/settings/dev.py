@@ -1,7 +1,8 @@
 from .base import *
 from .secret import EMAIL_HOST_PASSWORD, ACCOUNT_NUMBER, SECRET_KEY
 
-DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+DEBUG = False
 
 INSTALLED_APPS += (
     'debug_toolbar',
@@ -21,4 +22,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
 
