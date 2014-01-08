@@ -65,12 +65,6 @@ class Hop(Ingredient):
     ingredient_type = "hops"
 
 
-#class AbstractOrder(models.Model):
-#
-#    class Meta:
-#        abstract = True
-
-
 class SupplierOrder(models.Model):
     STATUS_PENDING = "pending"
     STATUS_ORDERED = "ordered"
