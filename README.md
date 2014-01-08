@@ -1,10 +1,10 @@
 ucbc
 ====
 
-UCBC webapp
+Website for the UC brew club.
 
 Development Setup
-=================
+-----------------
 
 Install python 3.2, pip and sqlite for your platform
 
