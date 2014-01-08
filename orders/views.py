@@ -1,23 +1,25 @@
 from http.client import OK, CREATED, BAD_REQUEST
 import logging
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.forms.models import modelformset_factory, BaseModelFormSet, inlineformset_factory, BaseInlineFormSet
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
+from django.forms.models import inlineformset_factory
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render_to_response, render
-from django.forms.formsets import formset_factory, BaseFormSet
+from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
+from django.template import RequestContext
+from django.views.decorators.http import require_POST, require_GET
+from flatblocks.models import FlatBlock
 
 from orders import models
 from orders.forms import CartItemForm, OrderItemFormset
 from orders.utils import get_ingredient
 from orders.utils import add_gst
-from django.template import RequestContext
-from django.views.decorators.http import require_POST, require_GET
 
 log = logging.getLogger(__name__)
 
@@ -118,21 +120,6 @@ def review_order(request):
     return render(request, 'orders/review_cart.html', {'cart_formset': cart_formset})
 
 
-CONFIRMATION_EMAIL = """Thank you for your order, your order number is %(order_number)d.
-
-Please pay the total of $%(total)2.2f into our account as as you can as we won't include orders that
-haven't been payed.
-
-Bank Account Number: %(account_number)s
-Make sure you include your order number as a reference.
-
-Keep an eye on our facebook group to get updates on the status of our orders.
-
-Happy brewing,
-
-The UCBC Team.
-"""
-
 @require_POST
 @login_required
 def checkout(request):
@@ -151,7 +138,7 @@ def checkout(request):
 
 
 def _email_order_confirmation(request, user_order):
-    message = CONFIRMATION_EMAIL % dict(
+    message = FlatBlock.objects.get(slug='orders.email.confirmation').content % dict(
         order_number=user_order.id,
         total=add_gst(user_order.total),
         account_number=settings.ACCOUNT_NUMBER,

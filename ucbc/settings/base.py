@@ -29,6 +29,7 @@ INSTALLED_APPS = (
 
     'south',
     'bootstrapform',
+    'flatblocks',
 
     'main',
     'orders',

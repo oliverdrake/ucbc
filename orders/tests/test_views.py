@@ -16,7 +16,6 @@ from webtest import AppError
 
 from orders.models import Grain, Supplier, Hop, UserOrder
 from orders import utils
-from orders.views import CONFIRMATION_EMAIL
 
 ORDER_GRAINS_URL = reverse('order_grain')
 ORDER_HOPS_URL = reverse('order_hops')
@@ -169,6 +168,11 @@ class TestCartDeleteItem(_IngredientPostBase):
 class TestCheckout(_IngredientPostBase):
     @mock.patch('django.core.mail.send_mail')
     def test_email_sent(self, send_mail):
+        from flatblocks.models import FlatBlock
+        email_message = FlatBlock.objects.create(
+            slug='orders.email.confirmation',
+            content="Order %(order_number)s, acc: %(account_number)s, total: $%(total)s").content
+
         self._login()
         # Add some hops to cart:
         response = self.app.get(ORDER_HOPS_URL)
@@ -186,7 +190,8 @@ class TestCheckout(_IngredientPostBase):
         cart_form = response.forms.get(0)
         response = cart_form.submit()
         order_number = UserOrder.objects.count()
-        message = CONFIRMATION_EMAIL % dict(
+
+        message = email_message % dict(
             order_number=order_number,
             total=utils.add_gst(UserOrder.objects.get(id=order_number).total),
             account_number=settings.ACCOUNT_NUMBER,
