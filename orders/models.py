@@ -180,3 +180,23 @@ class OrderItem(models.Model):
 
     def paid(self):
         return self.user_order.status
+
+
+class OrdersEnabled(models.Model):
+    """
+    Singleton flag used to enable/disable orders (for periods of time where there's no
+    orders in the foreseeable future.
+    Idea borrowed from https://github.com/defbyte/django-singleton
+    """
+    enabled = models.BooleanField(blank=False, null=False, default=False)
+
+    class Meta:
+        verbose_name_plural = 'Orders Enabled'
+
+    @classmethod
+    def is_enabled(cls):
+        return cls.objects.get_or_create(id=1)[0].enabled
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super(OrdersEnabled, self).save(*args, **kwargs)

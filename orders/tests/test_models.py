@@ -1,6 +1,8 @@
 from functools import partial
+from django.db import IntegrityError
+from django.test import TestCase
 from nose.tools import assert_equal, raises
-from orders.models import Ingredient
+from orders.models import Ingredient, OrdersEnabled
 
 
 class TestIngredient(object):
@@ -45,3 +47,17 @@ class TestIngredient(object):
     @raises(ValueError)
     def test_unit_size_plural_bad_string_quantity():
         Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, "sdf")
+
+
+class TestOrdersEnabled(TestCase):
+    def test_is_singleton(self):
+        one = OrdersEnabled.objects.create(enabled=False)
+        with self.assertRaises(IntegrityError):
+            OrdersEnabled.objects.create(enabled=True)
+        assert_equal(1, one.id)
+
+    def test_is_enabled(self):
+        assert_equal(0, OrdersEnabled.objects.count())
+        self.assertFalse(OrdersEnabled.is_enabled())
+        self.assertFalse(OrdersEnabled.is_enabled())
+        assert_equal(1, OrdersEnabled.objects.count())

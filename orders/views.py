@@ -1,3 +1,4 @@
+from functools import wraps
 from http.client import OK, CREATED, BAD_REQUEST
 import logging
 
@@ -18,10 +19,25 @@ from flatblocks.models import FlatBlock
 
 from orders import models
 from orders.forms import CartItemForm, OrderItemFormset
+from orders.models import OrdersEnabled
 from orders.utils import get_ingredient
 from orders.utils import add_gst
 
 log = logging.getLogger(__name__)
+
+
+def orders_enabled(view):
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if OrdersEnabled.is_enabled():
+            return view(request, *args, **kwargs)
+        message = "Sorry, we're not currently taking orders, keep an eye on our facebook page."
+        return render(
+            request,
+            'orders/orders_disabled.html',
+            {'error': message},
+            status=BAD_REQUEST)
+    return wrapper
 
 
 def main(request):
@@ -69,6 +85,7 @@ class OrderIngredientView(TemplateView):
                     request.session.modified = True
 
     @method_decorator(login_required)
+    @method_decorator(orders_enabled)
     def get(self, request, *args, **kwargs):
         ingredient_formset = self.formset_class(initial=self.initial, prefix="ingredients")
         cart_formset = create_cart_formset(request)
@@ -80,6 +97,7 @@ class OrderIngredientView(TemplateView):
                 'cart_formset': cart_formset})
 
     @method_decorator(login_required)
+    @method_decorator(orders_enabled)
     def post(self, request, *args, **kwargs):
         formset = self.formset_class(request.POST, initial=self.initial, prefix="ingredients")
         if formset.is_valid():

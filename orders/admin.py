@@ -1,6 +1,6 @@
 from functools import partial
 from django.contrib import admin, messages
-from .models import Grain, Hop, UserOrder, Supplier, OrderItem, SupplierOrder
+from .models import Grain, Hop, UserOrder, Supplier, OrderItem, SupplierOrder, OrdersEnabled
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -60,9 +60,16 @@ class OrderItemAdmin(admin.ModelAdmin):
         return False
 
 
+class OrdersEnabledAdmin(admin.ModelAdmin):
+    list_display = ("name", "enabled", )
+
+    def name(self, *args, **kwargs):
+        return "Orders Enabled"
+
 admin.site.register(Grain, IngredientAdmin)
 admin.site.register(Hop, IngredientAdmin)
 admin.site.register(UserOrder, UserOrderAdmin)
 admin.site.register(Supplier)
 admin.site.register(SupplierOrder, SupplierOrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
+admin.site.register(OrdersEnabled, OrdersEnabledAdmin)

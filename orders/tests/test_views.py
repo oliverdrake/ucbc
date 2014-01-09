@@ -14,7 +14,7 @@ import mock
 from nose.tools import raises
 from webtest import AppError
 
-from orders.models import Grain, Supplier, Hop, UserOrder
+from orders.models import Grain, Supplier, Hop, UserOrder, OrdersEnabled
 from orders import utils
 
 ORDER_GRAINS_URL = reverse('order_grain')
@@ -37,6 +37,9 @@ class _CommonMixin(object):
             unit_cost=4,
             unit_size=Hop.UNIT_SIZE_100G,
             supplier=self.nzhops)
+        self.orders_enabled, success = OrdersEnabled.objects.get_or_create(id=1)
+        self.orders_enabled.enabled = True
+        self.orders_enabled.save()
 
 
 class _IngredientGetBase(TestCase, _CommonMixin):
@@ -56,8 +59,15 @@ class _IngredientGetBase(TestCase, _CommonMixin):
         response = self.client.post(self.url, data={})
         self.assertRedirects(response, expected_url)
 
+    def test_get_orders_disabled(self):
+        self.orders_enabled.enabled = False
+        self.orders_enabled.save()
+        self.client.login(username='temporary', password='temporary')
+        response = self.client.get(self.url)
+        assert_code(response, BAD_REQUEST)
 
-class _IngredientPostBase(WebTest, _CommonMixin):
+
+class _WebTest(WebTest, _CommonMixin):
     def setUp(self):
         _CommonMixin.setUp(self)
 
@@ -69,6 +79,29 @@ class _IngredientPostBase(WebTest, _CommonMixin):
         assert_code(response, OK)
 
 
+
+class _IngredientPostBase(_WebTest):
+    url = None
+
+    @raises(AppError)
+    def test_post_orders_disabled_returns_400(self):
+        self._login()
+        response = self.app.get(self.url)
+        self.orders_enabled.enabled = False
+        self.orders_enabled.save()
+        add_grain_to_order_form = response.forms.get(0)
+        add_grain_to_order_form['ingredients-0-quantity'] = 5
+        add_grain_to_order_form.submit()
+
+    @raises(AppError)
+    def test_post_invalid_data_returns_400(self):
+        self._login()
+        response = self.app.get(self.url)
+        add_grain_to_order_form = response.forms.get(0)
+        add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
+        add_grain_to_order_form.submit()
+
+
 class TestGrainsGet(_IngredientGetBase):
     url = ORDER_GRAINS_URL
 
@@ -77,32 +110,25 @@ class TestGrainsGet(_IngredientGetBase):
         response = self.client.get(self.url)
         assert_ok(response)
         formset_ = response.context['ingredient_formset']
-
         ingredient_names = [f.initial.get('ingredient_name') for f in formset_]
         self.assertIn(self.munich.name, ingredient_names)
 
 
 class TestGrainsPost(_IngredientPostBase):
+    url = ORDER_GRAINS_URL
+
     def test_post_happy_path(self):
         self._login()
-        response = self.app.get(ORDER_GRAINS_URL)
+        response = self.app.get(self.url)
         add_grain_to_order_form = response.forms.get(0)
         add_grain_to_order_form['ingredients-0-quantity'] = 5
         response = add_grain_to_order_form.submit()
-        self.assertRedirects(response, ORDER_GRAINS_URL)
+        self.assertRedirects(response, self.url)
         response = response.follow()
 
         cart_form = response.forms.get(1)
         self.assertEqual(str(self.munich.id), cart_form.get('cart-0-ingredient').value)
         self.assertEqual('5', cart_form.get('cart-0-quantity').value)
-
-    @raises(AppError)
-    def test_post_invalid_data_returns_400(self):
-        self._login()
-        response = self.app.get(ORDER_GRAINS_URL)
-        add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
-        add_grain_to_order_form.submit()
 
 
 class TestHopsGet(_IngredientGetBase):
@@ -118,29 +144,22 @@ class TestHopsGet(_IngredientGetBase):
 
 
 class TestHopsPost(_IngredientPostBase):
+    url = ORDER_HOPS_URL
+
     def test_post_happy_path(self):
         self._login()
-        response = self.app.get(ORDER_HOPS_URL)
+        response = self.app.get(self.url)
         add_grain_to_order_form = response.forms.get(0)
         add_grain_to_order_form['ingredients-0-quantity'] = 5
         response = add_grain_to_order_form.submit()
-        self.assertRedirects(response, ORDER_HOPS_URL)
+        self.assertRedirects(response, self.url)
         response = response.follow()
-
         cart_form = response.forms.get(1)
         self.assertEqual(str(self.sauvin.id), cart_form.get('cart-0-ingredient').value)
         self.assertEqual('5', cart_form.get('cart-0-quantity').value)
 
-    @raises(AppError)
-    def test_post_invalid_data_returns_400(self):
-        self._login()
-        response = self.app.get(ORDER_HOPS_URL)
-        add_grain_to_order_form = response.forms.get(0)
-        add_grain_to_order_form['ingredients-0-quantity'] = "bad_quantity"
-        add_grain_to_order_form.submit()
 
-
-class TestCartDeleteItem(_IngredientPostBase):
+class TestCartDeleteItem(_WebTest):
     def test_happy_path(self):
         self._login()
         # Add some hops to cart:
@@ -165,7 +184,7 @@ class TestCartDeleteItem(_IngredientPostBase):
         self.assertNotIn('cart-0-ingredient', cart_form.fields)
 
 
-class TestCheckout(_IngredientPostBase):
+class TestCheckout(_WebTest):
     @mock.patch('django.core.mail.send_mail')
     def test_email_sent(self, send_mail):
         from flatblocks.models import FlatBlock
