@@ -12,7 +12,7 @@ class TestModels(object):
     def create_order_row(order, unit_cost=1.0, quantity=1, supplier_order=None):
         ingredient = Ingredient(
             unit_cost=unit_cost,
-            name="test_ingredient_%d" % random.randint(0, 999))
+            name="test_ingredient_%d" % random.randint(0, 9999))
         ingredient.save()
         order_item = OrderItem(
             ingredient=ingredient,
