@@ -111,7 +111,6 @@ class UserOrder(models.Model):
         choices=(
             (STATUS_UNPAID, "unpaid"),
             (STATUS_PAID, "paid")),
-        editable=False,
         blank=False,
         default=STATUS_UNPAID)
     user = models.ForeignKey(get_user_model(), related_name="orders", blank=False)

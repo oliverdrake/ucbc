@@ -1,6 +1,7 @@
 from functools import partial
 from django.contrib import admin, messages
 from .models import Grain, Hop, UserOrder, Supplier, OrderItem, SupplierOrder, OrdersEnabled
+from orders.forms import SupplierOrderAdminForm
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -23,13 +24,13 @@ class ReadOnlyOrderItemInline(OrderItemInline):
 class UserOrderAdmin(admin.ModelAdmin):
     inlines = (OrderItemInline, )
     list_display = ("id", "username", "total_excl_gst", "status")
-    readonly_fields = ("status", "total_excl_gst", )
+    readonly_fields = ("total_excl_gst", )
 
 
 class SupplierOrderAdmin(admin.ModelAdmin):
     list_display = ("id", "supplier_name", "status", "total_excl_gst")
-    inlines = (ReadOnlyOrderItemInline, )
     readonly_fields = ("total_excl_gst",)
+    form = SupplierOrderAdminForm
 
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):
