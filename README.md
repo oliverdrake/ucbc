@@ -1,7 +1,7 @@
 UC Brew Club
 ============
 
-Website for the UC brew club.
+Website for the UC brew club, pull requests welcome :)
 
 Development Setup
 -----------------
