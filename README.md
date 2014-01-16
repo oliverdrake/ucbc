@@ -24,7 +24,10 @@ Now you should be able to run the dev server: ./manage.py runserver.
 Release Notes
 -------------
 
-1.0-alpha1
+1.0-a1:
+ * https://github.com/oliverdrake/ucbc/issues/13
+ * https://github.com/oliverdrake/ucbc/issues/10
+ * https://github.com/oliverdrake/ucbc/issues/4
 
 
 
