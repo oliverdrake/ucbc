@@ -3,6 +3,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple, ForeignKeyRawId
 from django.contrib import admin
 from django.db.models import ManyToManyField
 from django.forms.models import BaseInlineFormSet
+import orders
 
 from orders.models import OrderItem, SupplierOrder, Ingredient, UserOrder
 
@@ -73,14 +74,18 @@ class SupplierOrderAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SupplierOrderAdminForm, self).__init__(*args, **kwargs)
-        if self.instance:
-            self.fields['ingredient_orders'].initial = self.instance.ingredient_orders.all()
-            self.fields['ingredient_orders'].queryset = OrderItem.objects.\
-                filter(ingredient__supplier=self.instance.supplier).\
-                filter(user_order__status=UserOrder.STATUS_PAID)
+        try:
+            if self.instance:
+                self.fields['ingredient_orders'].initial = self.instance.ingredient_orders.all()
+                self.fields['ingredient_orders'].queryset = OrderItem.objects.\
+                    filter(ingredient__supplier=self.instance.supplier).\
+                    filter(user_order__status=UserOrder.STATUS_PAID)
+        except orders.models.Supplier.DoesNotExist:
+            pass
 
     def save(self, *args, **kwargs):
         instance = super(SupplierOrderAdminForm, self).save(commit=False)
+        instance.save()
         self.fields['ingredient_orders'].initial.update(supplier_order=None)
         self.cleaned_data['ingredient_orders'].update(supplier_order=instance)
         return instance
