@@ -1,5 +1,5 @@
-ucbc
-====
+UC Brew Club
+============
 
 Website for the UC brew club.
 
@@ -19,6 +19,13 @@ Run ./migrate (or syncdb followed by south stuff)
 Run ./manage.py collectstatic
 
 Now you should be able to run the dev server: ./manage.py runserver.
+
+
+Release Notes
+-------------
+
+1.0-alpha1
+
 
 
 
