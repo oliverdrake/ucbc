@@ -3,6 +3,8 @@ UC Brew Club
 
 Website for the UC brew club, pull requests welcome :)
 
+[![Build Status](https://travis-ci.org/oliverdrake/ucbc.png?branch=master)](https://travis-ci.org/oliverdrake/ucbc)
+
 Development Setup
 -----------------
 
@@ -24,8 +26,7 @@ Now you should be able to run the dev server: ./manage.py runserver.
 Release Notes
 -------------
 
-1.0-alpha1
-
+See https://github.com/oliverdrake/ucbc/issues/milestones
 
 
 

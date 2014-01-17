@@ -1,6 +1,6 @@
 from orders import models
 
-NZ_GST = 1.015
+NZ_GST = 1.15
 
 
 def add_gst(amount):

@@ -3,7 +3,6 @@ from http.client import OK, CREATED, BAD_REQUEST
 import logging
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -14,7 +13,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.template import RequestContext
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 from flatblocks.models import FlatBlock
 
 from orders import models

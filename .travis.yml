@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - "3.2"
+
+env:
+  - DJANGO=Django==1.6.1
+
+# command to install dependencies
+install:
+  - pip install -r prod-requirements.txt --use-mirrors
+  - pip install -r dev-requirements.txt --use-mirrors
+
+before_script:
+  - echo "EMAIL_HOST_PASSWORD='pass';SECRET_KEY='1.2.3.4'" > ucbc/settings/secret.py
+  - python manage.py syncdb --noinput --migrate
+
+# command to run tests
+script: python manage.py test

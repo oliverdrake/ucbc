@@ -207,7 +207,7 @@ class TestCheckout(_WebTest):
 
         response = cart_form.submit()
         cart_form = response.forms.get(0)
-        response = cart_form.submit()
+        cart_form.submit()
         order_number = UserOrder.objects.count()
 
         message = email_message % dict(
