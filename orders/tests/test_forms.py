@@ -21,7 +21,7 @@ class TestSupplierOrderAdminForm(TestCase):
             unit_cost=10,
             unit_size=Ingredient.UNIT_SIZE_100G,
             supplier=supplier)
-        user = get_user_model().objects.get(id=1)
+        user = get_user_model().objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
         user_order = UserOrder.objects.create(user=user)
         item1 = OrderItem.objects.create(
             ingredient=munich,

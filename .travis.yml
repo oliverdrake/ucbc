@@ -13,7 +13,6 @@ install:
 
 before_script:
   - echo "EMAIL_HOST_PASSWORD='pass';SECRET_KEY='1.2.3.4'" > ucbc/settings/secret.py
-  - python manage.py syncdb --noinput --migrate
 
 # command to run tests
 script: python manage.py test
