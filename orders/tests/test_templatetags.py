@@ -19,4 +19,3 @@ def test_add_gst():
     assert_equal('', add_gst(None))
     assert_equal('', add_gst(""))
     assert_equal(-3 * 1.15, add_gst(-3))
-
