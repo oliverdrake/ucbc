@@ -3,6 +3,8 @@ UC Brew Club
 
 Website for the UC brew club, pull requests welcome :)
 
+[![Build Status](https://travis-ci.org/oliverdrake/ucbc.png?branch=master)](https://travis-ci.org/oliverdrake/ucbc)
+
 Development Setup
 -----------------
 
