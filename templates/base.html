@@ -105,7 +105,14 @@
 
                 {% if user.is_authenticated %}
 
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ request.user.first_name }}<b class="caret"></b></a>
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    {% if request.user.first_name %}
+                      {{ request.user.first_name }}
+                    {% else %}
+                      {{ request.user.username }}
+                    {% endif %}
+                      <b class="caret"></b>
+                  </a>
                   <ul class="dropdown-menu">
                     <li>
                       <a href="{% url 'logout' %}">Log out</a>

@@ -21,10 +21,15 @@ class ReadOnlyOrderItemInline(OrderItemInline):
         return self.model._meta.get_all_field_names()
 
 
+def flag_as_paid(modeladmin, request, queryset):
+    queryset.update(status=UserOrder.STATUS_PAID)
+
+
 class UserOrderAdmin(admin.ModelAdmin):
     inlines = (OrderItemInline, )
     list_display = ("id", "username", "total_excl_gst", "status")
     readonly_fields = ("total_excl_gst", )
+    actions = (flag_as_paid, )
 
 
 class SupplierOrderAdmin(admin.ModelAdmin):
