@@ -1,0 +1,17 @@
+language: python
+
+python:
+  - "3.2"
+
+env:
+  - DJANGO=Django==1.6.1
+
+# command to install dependencies
+install:
+  - pip install -r prod-requirements.txt --use-mirrors
+  - pip install -r dev-requirements.txt --use-mirrors
+
+before_script: ./migrate.sh
+
+# command to run tests
+script: python manage.py test
