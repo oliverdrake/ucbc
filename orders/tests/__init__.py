@@ -53,13 +53,3 @@ class TestModels(object):
     def test_ingredient_type_property(self):
         assert_equal("grain", Grain(name="grain").ingredient_type)
         assert_equal("hops", Hop(name="hops").ingredient_type)
-
-
-class TestTemplateTags(object):
-    def test_currency(self):
-        assert_equal("$22.50", currency(22.5))
-        assert_equal("$3.00", currency(3))
-        assert_equal("-$5.00", currency(-5))
-        assert_equal("$?", currency(""))
-        assert_equal("$?", currency(None))
-        assert_equal("$0.00", currency(0))
