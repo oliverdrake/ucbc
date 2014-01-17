@@ -52,6 +52,10 @@ class TestIngredient(object):
     def test_unit_size_plural_bad_string_quantity():
         Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, "sdf")
 
+    def test_ingredient_type_property(self):
+        assert_equal("grain", Grain(name="grain").ingredient_type)
+        assert_equal("hops", Hop(name="hops").ingredient_type)
+
 
 class TestOrdersEnabled(TestCase):
     def test_is_singleton(self):
@@ -81,39 +85,35 @@ def create_order_item(order, unit_cost=1.0, quantity=1, supplier_order=None):
         return order_item
 
 
-def test_singleingredientorder_total_gst_excl():
-    order = UserOrder()
-    order.user = User.objects.create_user("a")
-    order.save()
-    for (unit_cost, quantity) in ((2.5, 3), (4.6, 400.5)):
-        order_row = create_order_item(order, unit_cost, quantity)
-        assert_equal(quantity*unit_cost, order_row.total)
+class TestOrderItem(TestCase):
+    def test_singleingredientorder_total_gst_excl(self):
+        order = UserOrder()
+        order.user = User.objects.create_user("a")
+        order.save()
+        for (unit_cost, quantity) in ((2.5, 3), (4.6, 400.5)):
+            order_item = create_order_item(order, unit_cost, quantity)
+            assert_equal(quantity*unit_cost, order_item.total)
 
 
-def test_order_total_gst_excl():
-    order = UserOrder()
-    order.user = User.objects.create_user("b")
-    order.save()
-    create_order_item(order, 3.5, 2)
-    create_order_item(order, 2.1, 5)
-    order.save()
-    assert_equal(17.5, order.total)
+class TestUserOrder(TestCase):
+    def test_order_total_gst_excl(self):
+        order = UserOrder()
+        order.user = User.objects.create_user("b")
+        order.save()
+        create_order_item(order, 3.5, 2)
+        create_order_item(order, 2.1, 5)
+        order.save()
+        assert_equal(17.5, order.total)
 
 
-def test_supplier_order_total_gst_excl():
-    supplier_order = SupplierOrder.objects.create(
-        status=SupplierOrder.STATUS_PENDING,
-        supplier=Supplier.objects.create(name="testsupplier"))
-    order = UserOrder()
-    order.user = User.objects.create_user("c")
-    order.save()
-    create_order_item(order, unit_cost=3, quantity=5, supplier_order=supplier_order)
-    create_order_item(order, unit_cost=1, quantity=7, supplier_order=supplier_order)
-    assert_equal(22, supplier_order.total)
-
-
-def test_ingredient_type_property():
-    assert_equal("grain", Grain(name="grain").ingredient_type)
-    assert_equal("hops", Hop(name="hops").ingredient_type)
-
-
+class TestSupplierOrder(TestCase):
+    def test_supplier_order_total_gst_excl(self):
+        supplier_order = SupplierOrder.objects.create(
+            status=SupplierOrder.STATUS_PENDING,
+            supplier=Supplier.objects.create(name="testsupplier"))
+        order = UserOrder()
+        order.user = User.objects.create_user("c")
+        order.save()
+        create_order_item(order, unit_cost=3, quantity=5, supplier_order=supplier_order)
+        create_order_item(order, unit_cost=1, quantity=7, supplier_order=supplier_order)
+        assert_equal(22, supplier_order.total)

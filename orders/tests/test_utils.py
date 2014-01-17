@@ -1,9 +1,10 @@
+from django.test import TestCase
 from nose.tools import assert_equal, raises
 from orders.models import Hop, Ingredient, Supplier, Grain
 from orders.utils import get_ingredient
 
 
-class TestGetIngredient(object):
+class TestGetIngredient(TestCase):
 
     def setUp(self):
         self.nzhops = Supplier(name="NZ Hops")

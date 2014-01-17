@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from nose.tools import assert_equal
 from orders.forms import SupplierOrderAdminForm
 from orders.models import Supplier, Grain, Ingredient, Hop, UserOrder, OrderItem, SupplierOrder
 
 
-class TestSupplierOrderAdminForm(object):
+class TestSupplierOrderAdminForm(TestCase):
     def test_no_supplier_no_exception_raised(self):
         form = SupplierOrderAdminForm()
 
