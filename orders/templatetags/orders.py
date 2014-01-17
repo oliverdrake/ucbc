@@ -1,6 +1,4 @@
-from functools import partial
 from django import template
-from orders import utils
 from orders import models
 
 register = template.Library()
