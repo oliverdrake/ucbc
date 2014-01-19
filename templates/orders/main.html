@@ -1,34 +1,20 @@
 {% extends "base.html" %}
+{% load flatblock_tags %}
 
 {% block container %}
 
 <h3>About</h3>
-
-<p>Through the UCBC you can get amazing deals on bulk orders of grains and hops.</p>
-
-<p>
-  We place these orders semi regularly, check our
-  <a href="https://www.facebook.com/groups/ucbrewclub/">facebook</a> page for updates.
-</p>
+{% flatblock "orders.about" %}
 
 {% if user.is_authenticated %}
 
 To get started, start adding some <a href="{% url 'order_grain' %}">Grains</a> or
 <a href="{% url 'order_hops' %}">Hops</a> to your order.
 
-{#<div class="row">#}
-{#  <div class="col-lg-6">#}
-{#    <p class="text-center"><a href="{% url 'order_grain' %}">Grains</a></p>#}
-{#  </div>#}
-{#  <div class="col-lg-6">#}
-{#    <p class="text-center"><a href="{% url 'order_hops' %}">Hops</a></p>#}
-{#  </div>#}
-{#</div>#}
-
 {% else %}
 
 <p class="text-error">
-  You need to be a UCBC member and
+  If you're a UCBC member you need to
   <b><a href="{% url 'login' %}">sign in</a></b> with your credentials before you can place an
   order for grains or hops.
 </p>
