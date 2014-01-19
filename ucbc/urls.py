@@ -14,6 +14,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'main.views.index'),
+    url(r'^howto/(?P<name>.*)/$', 'main.views.howto', name='howto'),
     url(r'^orders/', include('orders.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^login/$', 'django.contrib.auth.views.login', name="login"),

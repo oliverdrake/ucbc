@@ -93,6 +93,17 @@
                       <a href="{% url 'orders.views.main' %}">About</a>
                     </li>
                   </ul>
+                <li class="dropdown" id="howtomenu">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">How-tos<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'howto' 'howto.kit' %}">Kit brewing</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'howto' 'howto.extract' %}">Extract</a>
+                    </li>
+                  </ul>
+                </li>
                 </li>
                 {% if request.user.is_staff %}
                 <li>
