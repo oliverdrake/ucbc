@@ -93,7 +93,7 @@
                       <a href="{% url 'orders.views.main' %}">About</a>
                     </li>
                   </ul>
-                <li class="dropdown" id="howtomenu">
+                <li class="dropdown{% if '/howto' in request.path %} active{% endif %}" id="howtomenu">
                   <a class="dropdown-toggle" data-toggle="dropdown" href="#">How-tos<b class="caret"></b></a>
                   <ul class="dropdown-menu">
                     <li>
