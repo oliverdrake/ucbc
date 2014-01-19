@@ -26,6 +26,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sessions',
+    'django.contrib.formtools',
 
     'south',
     'bootstrapform',

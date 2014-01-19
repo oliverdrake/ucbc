@@ -71,49 +71,76 @@ class TestOrdersEnabled(TestCase):
         assert_equal(1, OrdersEnabled.objects.count())
 
 
-def create_order_item(order, unit_cost=1.0, quantity=1, supplier_order=None):
-        ingredient = Ingredient(
-            unit_cost=unit_cost,
-            name="test_ingredient_%d" % random.randint(0, 9999))
-        ingredient.save()
-        order_item = OrderItem(
-            ingredient=ingredient,
-            user_order=order,
-            quantity=quantity,
-            supplier_order=supplier_order)
-        order_item.save()
-        return order_item
+def create_order_item(order, supplier, unit_cost=1.0, quantity=1, supplier_order=None, name=None):
+    if not name:
+        name = "test_ingredient_%d" % random.randint(0, 9999)
+    ingredient, _ = Ingredient.objects.get_or_create(
+        unit_cost=unit_cost,
+        name=name,
+        supplier=supplier)
+    order_item = OrderItem(
+        ingredient=ingredient,
+        user_order=order,
+        quantity=quantity,
+        supplier_order=supplier_order)
+    order_item.save()
+    return order_item
 
 
 class TestOrderItem(TestCase):
     def test_singleingredientorder_total_gst_excl(self):
+        supplier = Supplier.objects.create(name="testsupplier")
         order = UserOrder()
         order.user = User.objects.create_user("a")
         order.save()
         for (unit_cost, quantity) in ((2.5, 3), (4.6, 400.5)):
-            order_item = create_order_item(order, unit_cost, quantity)
+            order_item = create_order_item(order, supplier, unit_cost, quantity)
             assert_equal(quantity*unit_cost, order_item.total)
 
 
 class TestUserOrder(TestCase):
     def test_order_total_gst_excl(self):
+        supplier = Supplier.objects.create(name="testsupplier")
         order = UserOrder()
         order.user = User.objects.create_user("b")
         order.save()
-        create_order_item(order, 3.5, 2)
-        create_order_item(order, 2.1, 5)
+        create_order_item(order, supplier, 3.5, 2)
+        create_order_item(order, supplier, 2.1, 5)
         order.save()
         assert_equal(17.5, order.total)
 
 
 class TestSupplierOrder(TestCase):
     def test_supplier_order_total_gst_excl(self):
+        supplier = Supplier.objects.create(name="testsupplier")
         supplier_order = SupplierOrder.objects.create(
             status=SupplierOrder.STATUS_PENDING,
-            supplier=Supplier.objects.create(name="testsupplier"))
+            supplier=supplier)
         order = UserOrder()
         order.user = User.objects.create_user("c")
         order.save()
-        create_order_item(order, unit_cost=3, quantity=5, supplier_order=supplier_order)
-        create_order_item(order, unit_cost=1, quantity=7, supplier_order=supplier_order)
+        create_order_item(order, supplier, unit_cost=3, quantity=5, supplier_order=supplier_order)
+        create_order_item(order, supplier, unit_cost=1, quantity=7, supplier_order=supplier_order)
         assert_equal(22, supplier_order.total)
+
+    def test_summary(self):
+        supplier = Supplier.objects.create(name="testsupplier")
+        supplier_order = SupplierOrder.objects.create(
+            status=SupplierOrder.STATUS_PENDING,
+            supplier=supplier)
+        order = UserOrder()
+        order.user = User.objects.create_user("c")
+        order.save()
+        create_order_item(order, supplier, unit_cost=3, quantity=5, supplier_order=supplier_order, name="Munich")
+        create_order_item(order, supplier, unit_cost=1, quantity=7, supplier_order=supplier_order, name="Wheat")
+        order2 = UserOrder()
+        order2.user = User.objects.create_user("d")
+        order2.save()
+        create_order_item(order, supplier, unit_cost=3, quantity=7, supplier_order=supplier_order, name="Munich")
+        create_order_item(order, supplier, unit_cost=3, quantity=9, supplier_order=supplier_order, name="Pilsener")
+        assert_equal({
+                'Munich': (12, 36.0),
+                'Wheat': (7, 7.0),
+                'Pilsener': (9, 27.0)
+            },
+            supplier_order.summary)

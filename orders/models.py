@@ -87,6 +87,17 @@ class SupplierOrder(models.Model):
     def total(self):
         return sum([item.total for item in self.ingredient_orders.all()])
 
+    @property
+    def summary(self):
+        items = {}
+        for item in self.ingredient_orders.all():
+            name = item.ingredient.name
+            quantity, total = items.setdefault(name, (0, 0))
+            quantity += item.quantity
+            total += float(item.total)
+            items[name] = (quantity, total)
+        return items
+
     def supplier_name(self):
         return self.supplier.name
 

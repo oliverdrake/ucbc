@@ -1,9 +1,11 @@
 from functools import wraps
 from http.client import OK, CREATED, BAD_REQUEST
 import logging
+# from bootstrap.future import SessionWizardView
 
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
@@ -186,6 +188,33 @@ def cart_delete_item(request):
     if 'HTTP_REFERER' in request.META:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponse()
+
+
+class SupplierOrderWizard(SessionWizardView):
+    template_name = 'orders/supplier_order_wizard_form.html'
+    def done(self, form_list, **kwargs):
+        # print([form.cleaned_data for form in form_list])
+
+        supplier = form_list[0].cleaned_data.get('supplier')
+        order = models.SupplierOrder.objects.create(supplier=supplier)
+        order_items = form_list[1].cleaned_data.get('ingredient_orders')
+        for item in order_items:
+            item.supplier_order = order
+            item.save()
+        return HttpResponseRedirect(
+            reverse('orders.views.supplier_order', kwargs=dict(order_id=order.id)))
+        # return render_to_response('orders/supplier_order_complete.html', {
+        #     'order': order,
+        #     'supplier': supplier,
+        #     'order_items': order_items,
+        # })
+
+
+def supplier_order(request, order_id):
+    order = models.SupplierOrder.objects.get(id=order_id)
+    return render_to_response('orders/supplier_order.html', {
+            'order': order,
+        })
 
 
 def _get_cart_from_session(request):

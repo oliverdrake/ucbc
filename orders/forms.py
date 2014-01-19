@@ -5,7 +5,7 @@ from django.db.models import ManyToManyField
 from django.forms.models import BaseInlineFormSet
 import orders
 
-from orders.models import OrderItem, SupplierOrder, Ingredient, UserOrder
+from orders.models import OrderItem, SupplierOrder, Ingredient, UserOrder, Supplier
 
 
 class SelectIngredientOrderWidget(FilteredSelectMultiple):
@@ -89,3 +89,18 @@ class SupplierOrderAdminForm(forms.ModelForm):
         self.fields['ingredient_orders'].initial.update(supplier_order=None)
         self.cleaned_data['ingredient_orders'].update(supplier_order=instance)
         return instance
+
+
+class SupplierOrderSupplierForm(forms.Form):
+    supplier = forms.ModelChoiceField(queryset=Supplier.objects.all())
+
+
+class SupplierOrderOrderItemsForm(forms.Form):
+    ingredient_orders = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=OrderItem.objects.all(),
+        widget=FilteredSelectMultiple(verbose_name='Order Items', is_stacked=False),
+        help_text="Select order items to add to this supplier order. " +
+                  "Note: unpaid user orders are excluded from this list.")
+
+
