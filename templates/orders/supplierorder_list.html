@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block container %}
+
+<div class="row">
+  <h3>Supplier Orders</h3>
+  <a href="{% url 'change_supplier_orders' %}">Add</a>
+  <table class="table">
+    <thead>
+    <tr class="row">
+      <th class="col-sm-7">Supplier</th>
+      <th class="col-sm-3">Status</th>
+      <th class="col-sm-2">Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in object_list %}
+      <tr class="row">
+        <td class="col-sm-7">
+          <a href="{% url 'supplier_order' order.id %}">{{ order.supplier.name }}</a>
+        </td>
+        <td class="col-sm-3">{{ order.status }}</td>
+        <td class="col-sm-2">{{ order.total|currency }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

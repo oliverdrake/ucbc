@@ -14,7 +14,7 @@ import mock
 from nose.tools import raises
 from webtest import AppError
 
-from orders.models import Grain, Supplier, Hop, UserOrder, OrdersEnabled
+from orders.models import Grain, Supplier, Hop, UserOrder, OrdersEnabled, SupplierOrder, OrderItem
 from orders import utils
 
 ORDER_GRAINS_URL = reverse('order_grain')
@@ -222,3 +222,56 @@ class TestCheckout(_WebTest):
             fail_silently=True
         )
         self.assertGreater(UserOrder.objects.get(id=order_number).total, 0)
+
+
+class TestSupplierOrderList(TestCase, _CommonMixin):
+    def setUp(self):
+        _CommonMixin.setUp(self)
+        self.client = Client()
+        self.order = UserOrder.objects.create(user=User.objects.create_user("c"))
+        OrderItem.objects.create(
+            ingredient=self.munich,
+            quantity=5,
+            user_order=self.order,
+        )
+        OrderItem.objects.create(
+            ingredient=self.sauvin,
+            quantity=3,
+            user_order=self.order,
+        )
+        self.order2 = UserOrder.objects.create(user=User.objects.create_user("d"))
+        OrderItem.objects.create(
+            ingredient=self.munich,
+            quantity=7,
+            user_order=self.order2,
+        )
+        OrderItem.objects.create(
+            ingredient=self.sauvin,
+            quantity=2,
+            user_order=self.order2,
+        )
+
+    def test_supplier_orders_created_on_get(self):
+        self.assertEqual(0, SupplierOrder.objects.count())
+        SupplierOrder.objects.create(
+            supplier=self.gladfields,
+            status=SupplierOrder.STATUS_ORDERED)
+        SupplierOrder.objects.create(
+            supplier=self.gladfields,
+            status=SupplierOrder.STATUS_ARRIVED)
+        response = self.client.get(reverse('supplier_order_list'))
+        assert_ok(response)
+        pending_orders = SupplierOrder.objects.filter(status=SupplierOrder.STATUS_PENDING)
+        self.assertEqual(
+            Supplier.objects.count(),
+            pending_orders.count())
+        gladfields_order_items = OrderItem.objects.filter(ingredient__supplier=self.gladfields)
+        nzhops_order_items = OrderItem.objects.filter(ingredient__supplier=self.nzhops)
+        self.assertEqual(
+            sum([i.total for i in gladfields_order_items]),
+            pending_orders.get(supplier=self.gladfields).total)
+        self.assertEqual(
+            sum([i.total for i in nzhops_order_items]),
+            pending_orders.get(supplier=self.nzhops).total)
+
+
