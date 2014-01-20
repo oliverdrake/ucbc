@@ -1,26 +1,44 @@
 {% extends 'base.html' %}
+{% load orders %}
+{% load currency %}
 
 {% block container %}
 <h3>{{ order.supplier.name }} Order</h3>
 
 <p><strong>Order #{{ order.id }}</strong></p>
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Name</th>
       <th>Quantity</th>
-      <th>Total</th>
+      <th>Total (Excl. GST)</th>
     </tr>
   </thead>
   <tbody>
   {% for name, value in order.summary.items %}
     <tr>
       <td>{{ name }}</td>
-      <td>{{ value.0 }}</td>
-      <td>{{ value.1 }}</td>
+      {% ingredient_id name as id_ %}
+      {% unit_size_plural id_ value.0 as quantity %}
+      <td>{{ quantity }}</td>
+      <td>{{ value.1|currency }}</td>
     </tr>
   {% endfor %}
+    <tr>
+      <td/>
+      <td/>
+      <td>
+        {{ order.total|currency }}
+      </td>
+    </tr>
+    <tr>
+      <td/>
+      <td>Incl. GST:</td>
+      <td>
+        <strong>{{ order.total|add_gst|currency }}</strong>
+      </td>
+    </tr>
   </tbody>
 </table>
 

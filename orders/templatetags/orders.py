@@ -11,6 +11,11 @@ def ingredient_name(ingredient_id):
 
 
 @register.assignment_tag
+def ingredient_id(ingredient_name):
+    return get_ingredient(name=ingredient_name).id
+
+
+@register.assignment_tag
 def order_item_total(ingredient_id, quantity):
     unit_cost = float(get_ingredient(id=ingredient_id).unit_cost)
     return unit_cost * float(quantity)
