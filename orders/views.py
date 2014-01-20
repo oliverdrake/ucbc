@@ -190,19 +190,6 @@ def cart_delete_item(request):
     return HttpResponse()
 
 
-class SupplierOrderWizard(SessionWizardView):
-    template_name = 'orders/supplier_order_wizard_form.html'
-    def done(self, form_list, **kwargs):
-        supplier = form_list[0].cleaned_data.get('supplier')
-        order = models.SupplierOrder.objects.create(supplier=supplier)
-        order_items = form_list[1].cleaned_data.get('ingredient_orders')
-        for item in order_items:
-            item.supplier_order = order
-            item.save()
-        return HttpResponseRedirect(
-            reverse('orders.views.supplier_order', kwargs=dict(order_id=order.id)))
-
-
 def supplier_order(request, order_id):
     order = models.SupplierOrder.objects.get(id=order_id)
     return render_to_response('orders/supplier_order.html', {
