@@ -2,14 +2,9 @@ from collections import OrderedDict
 import csv
 from http.client import CREATED, OK, BAD_REQUEST
 import mimetypes
-from unittest import skip
-from IPython.testing.nose_assert_methods import assert_in
 from io import StringIO
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.backends.dummy.base import ignore
-from django.forms.formsets import formset_factory
-from django.conf import settings
 from django.test.client import Client
 from django.test import TestCase
 from django_nose.tools import assert_ok, assert_code
@@ -268,6 +263,6 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
         response_body = response.content.decode(encoding='UTF-8')
         f = StringIO(response_body)
         reader = csv.reader(f)
-        assert_in(["Name", "Quantity"], reader)
-        assert_in(["Munich", "12 sacks"], reader)
+        self.assertIn(["Name", "Quantity"], reader)
+        self.assertIn(["Munich", "12 sacks"], reader)
         
