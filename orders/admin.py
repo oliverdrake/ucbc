@@ -37,6 +37,15 @@ class SupplierOrderAdmin(admin.ModelAdmin):
     readonly_fields = ("supplier", "total_excl_gst", "total_incl_gst")
     change_form_template = 'orders/supplier_order_change_form.html'
 
+    def get_queryset(self, request):
+        supplier_orders = SupplierOrder.objects.filter(status=SupplierOrder.STATUS_PENDING)
+        for supplier in Supplier.objects.all():
+            order, _ = supplier_orders.get_or_create(supplier=supplier)
+            OrderItem.objects.filter(
+                supplier_order=None,
+                ingredient__supplier=supplier).update(supplier_order=order)
+        return SupplierOrder.objects.all()
+
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):
     if queryset.filter(user_order__status=UserOrder.STATUS_UNPAID).count() > 0:
