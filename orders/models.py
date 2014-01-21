@@ -147,17 +147,6 @@ class UserOrder(models.Model):
 
 class OrderItem(models.Model):
     """ One entry in an order """
-    STATUS_PENDING = "pending"
-    STATUS_ORDERED = "ordered_from_supplier"
-    STATUS_READY_FOR_PICKUP = "ready_for_pickup"
-    status = models.CharField(
-        max_length=255,
-        choices=(
-            (STATUS_PENDING, "pending"),
-            (STATUS_ORDERED, "ordered from supplier"),
-            (STATUS_READY_FOR_PICKUP, "arrived and ready for pickup")),
-        blank=False,
-        default=STATUS_PENDING)
     ingredient = models.ForeignKey(Ingredient, related_name="single_ingredient_orders", blank=False)
     quantity = models.PositiveIntegerField(blank=False)
     user_order = models.ForeignKey(UserOrder, related_name="order_items", blank=False)
