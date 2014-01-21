@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import csv
-from http.client import CREATED, OK, BAD_REQUEST
+from http.client import CREATED, OK, BAD_REQUEST, FORBIDDEN, FOUND
 import mimetypes
 from io import StringIO
 from django.contrib.auth.models import User
@@ -252,6 +252,7 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
         )
 
     def test(self):
+        self.assertTrue(self.client.login(username='temporary', password='temporary'))
         order = SupplierOrder.objects.create(
             supplier=self.gladfields,
             status=SupplierOrder.STATUS_ORDERED)
@@ -265,4 +266,11 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
         reader = csv.reader(f)
         self.assertIn(["Name", "Quantity"], reader)
         self.assertIn(["Munich", "12 sacks"], reader)
-        
+
+    def test_login_required(self):
+        order = SupplierOrder.objects.create(
+            supplier=self.gladfields,
+            status=SupplierOrder.STATUS_ORDERED)
+        response = self.client.get(reverse('supplier_order_summary_csv', args=(order.id,)))
+        assert_code(response, FOUND)
+        self.assertIn('login', response['Location'])

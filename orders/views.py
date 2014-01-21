@@ -18,7 +18,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView
 from django.template import RequestContext
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from flatblocks.models import FlatBlock
 
 from orders import models
@@ -193,6 +193,8 @@ def cart_delete_item(request):
     return HttpResponse()
 
 
+@require_GET
+@login_required
 def supplier_order_summary_csv(request, order_id):
     order = get_object_or_404(models.SupplierOrder, id=order_id)
     response = HttpResponse(content_type=mimetypes.types_map['.csv'])
