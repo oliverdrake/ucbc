@@ -11,6 +11,5 @@ urlpatterns = patterns('',
     url(r'^cart/delete/$', 'orders.views.cart_delete_item', name='remove_item'),
     url(r'^cart/$', 'orders.views.checkout', name='checkout'),
     url(r'^complete/(?P<order_id>\d+)/$', 'orders.views.order_complete', name='order_complete'),
-    url(r'^supplier/(?P<order_id>\d+)/$', 'orders.views.supplier_order', name='supplier_order'),
-    url(r'^supplier/all/$', views.SupplierOrderList.as_view(), name='supplier_order_list'),
+    url(r'^supplier/csv/(?P<order_id>\d+)/$', 'orders.views.supplier_order_summary_csv', name='supplier_order_summary_csv'),
 )

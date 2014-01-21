@@ -1,6 +1,10 @@
 from collections import OrderedDict
+import csv
 from http.client import CREATED, OK, BAD_REQUEST
+import mimetypes
 from unittest import skip
+from IPython.testing.nose_assert_methods import assert_in
+from io import StringIO
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.backends.dummy.base import ignore
@@ -224,8 +228,9 @@ class TestCheckout(_WebTest):
         self.assertGreater(UserOrder.objects.get(id=order_number).total, 0)
 
 
-class TestSupplierOrderList(TestCase, _CommonMixin):
+class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
     def setUp(self):
+        super(TestSupplierOrderSummaryCSV, self).setUp()
         _CommonMixin.setUp(self)
         self.client = Client()
         self.order = UserOrder.objects.create(user=User.objects.create_user("c"))
@@ -251,27 +256,18 @@ class TestSupplierOrderList(TestCase, _CommonMixin):
             user_order=self.order2,
         )
 
-    def test_supplier_orders_created_on_get(self):
-        self.assertEqual(0, SupplierOrder.objects.count())
-        SupplierOrder.objects.create(
+    def test(self):
+        order = SupplierOrder.objects.create(
             supplier=self.gladfields,
             status=SupplierOrder.STATUS_ORDERED)
-        SupplierOrder.objects.create(
-            supplier=self.gladfields,
-            status=SupplierOrder.STATUS_ARRIVED)
-        response = self.client.get(reverse('supplier_order_list'))
+        OrderItem.objects.filter(supplier_order=None, ingredient__supplier=self.gladfields).update(supplier_order=order)
+        response = self.client.get(reverse('supplier_order_summary_csv', args=(order.id,)))
         assert_ok(response)
-        pending_orders = SupplierOrder.objects.filter(status=SupplierOrder.STATUS_PENDING)
-        self.assertEqual(
-            Supplier.objects.count(),
-            pending_orders.count())
-        gladfields_order_items = OrderItem.objects.filter(ingredient__supplier=self.gladfields)
-        nzhops_order_items = OrderItem.objects.filter(ingredient__supplier=self.nzhops)
-        self.assertEqual(
-            sum([i.total for i in gladfields_order_items]),
-            pending_orders.get(supplier=self.gladfields).total)
-        self.assertEqual(
-            sum([i.total for i in nzhops_order_items]),
-            pending_orders.get(supplier=self.nzhops).total)
-
-
+        self.assertEqual(mimetypes.types_map['.csv'], response['Content-Type'])
+        self.assertEqual('attachment; filename="Gladfields_order.csv"', response['Content-Disposition'])
+        response_body = response.content.decode(encoding='UTF-8')
+        f = StringIO(response_body)
+        reader = csv.reader(f)
+        assert_in(["Name", "Quantity"], reader)
+        assert_in(["Munich", "12 sacks"], reader)
+        

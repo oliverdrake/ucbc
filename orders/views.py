@@ -1,7 +1,10 @@
+import csv
 from functools import wraps
 from http.client import OK, CREATED, BAD_REQUEST
+from io import StringIO
 import logging
 # from bootstrap.future import SessionWizardView
+import mimetypes
 
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -10,7 +13,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView
@@ -190,23 +193,18 @@ def cart_delete_item(request):
     return HttpResponse()
 
 
-def supplier_order(request, order_id):
-    order = models.SupplierOrder.objects.get(id=order_id)
-    return render_to_response('orders/supplier_order.html', {
-            'order': order,
-        })
+def supplier_order_summary_csv(request, order_id):
+    order = get_object_or_404(models.SupplierOrder, id=order_id)
+    response = HttpResponse(content_type=mimetypes.types_map['.csv'])
+    response['Content-Disposition'] = 'attachment; filename="%s_order.csv"' % order.supplier.name
 
-
-class SupplierOrderList(ListView):
-    def get_queryset(self):
-        supplier_orders = models.SupplierOrder.objects.filter(status=models.SupplierOrder.STATUS_PENDING)
-        for supplier in models.Supplier.objects.all():
-            order, _ = supplier_orders.get_or_create(supplier=supplier)
-            models.OrderItem.objects.filter(
-                supplier_order=None,
-                ingredient__supplier=supplier).update(supplier_order=order)
-        return models.SupplierOrder.objects.filter(status=models.SupplierOrder.STATUS_PENDING)
-
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'Quantity'])
+    for name, (quantity, total) in order.summary.items():
+        ingredient = models.Ingredient.objects.get(name=name)
+        humanized_quantity = models.Ingredient.unit_size_plural(ingredient.unit_size, quantity)
+        writer.writerow([name, humanized_quantity])
+    return response
 
 
 def _get_cart_from_session(request):

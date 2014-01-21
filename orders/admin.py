@@ -33,9 +33,9 @@ class UserOrderAdmin(admin.ModelAdmin):
 
 
 class SupplierOrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "supplier_name", "status", "total_excl_gst")
-    readonly_fields = ("total_excl_gst",)
-    form = SupplierOrderAdminForm
+    list_display = ("supplier_name", "status", "total_excl_gst")
+    readonly_fields = ("supplier", "total_excl_gst", "total_incl_gst")
+    change_form_template = 'orders/supplier_order_change_form.html'
 
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):

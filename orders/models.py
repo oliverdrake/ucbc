@@ -104,6 +104,10 @@ class SupplierOrder(models.Model):
     def total_excl_gst(self):
         return "$%3.2f" % self.total
 
+    def total_incl_gst(self):
+        from orders.utils import add_gst
+        return "$%3.2f" % add_gst(self.total)
+
     def total_in_unpaid_order_items(self):
         unpaid_order_items = OrderItem.objects.filter(ingredient__supplier=self.supplier)
         unpaid_order_items.filter(order__status=UserOrder.STATUS_UNPAID)
