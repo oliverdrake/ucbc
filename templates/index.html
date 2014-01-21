@@ -1,13 +1,11 @@
 {% extends "base.html" %}
+{% load flatblock_tags %}
 
 {% block container %}
 
   <div class="row-fluid">
     <div class="col-md-12">
-      <h3>Welcome</h3>
-      <p>
-        Welcome to the offcial page of UCBC - University of Canterbury Brew Club.
-      </p>
+      {% flatblock 'frontpage' %}
     </div>
 
   </div>
