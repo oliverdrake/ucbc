@@ -46,6 +46,12 @@ class SupplierOrderAdmin(admin.ModelAdmin):
                 ingredient__supplier=supplier).update(supplier_order=order)
         return SupplierOrder.objects.all()
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 def add_to_supplier_order(supplier_order, modeladmin, request, queryset):
     if queryset.filter(user_order__status=UserOrder.STATUS_UNPAID).count() > 0:
