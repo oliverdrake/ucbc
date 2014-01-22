@@ -1,8 +1,10 @@
 from collections import OrderedDict
 import csv
-from http.client import CREATED, OK, BAD_REQUEST, FORBIDDEN, FOUND
+from http.client import CREATED, OK, BAD_REQUEST, FORBIDDEN, FOUND, NOT_FOUND
 import mimetypes
 from io import StringIO
+import os
+import tempfile
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.client import Client
@@ -13,7 +15,7 @@ import mock
 from nose.tools import raises
 from webtest import AppError
 
-from orders.models import Grain, Supplier, Hop, UserOrder, OrdersEnabled, SupplierOrder, OrderItem
+from orders.models import Grain, Supplier, Hop, UserOrder, OrdersEnabled, SupplierOrder, OrderItem, Ingredient
 from orders import utils
 
 ORDER_GRAINS_URL = reverse('order_grain')
@@ -274,3 +276,76 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
         response = self.client.get(reverse('supplier_order_summary_csv', args=(order.id,)))
         assert_code(response, FOUND)
         self.assertIn('login', response['Location'])
+
+
+class TestImportIngredientsFromCSV(_WebTest, _CommonMixin):
+    url = reverse('import_ingredients')
+
+    def setUp(self):
+        # super(TestSupplierOrderSummaryCSV, self).setUp()
+        _CommonMixin.setUp(self)
+        # self.client = Client()
+
+    def create_csv(self, tempdir, *rows):
+        filename = os.path.join(tempdir, "temp.csv")
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['name', 'unit_cost', 'unit_size', 'supplier_name', 'type'])
+            writer.writerows(rows)
+        return filename
+
+    def submit_file_form(self, filename, response):
+        form = response.form
+        form['file'] = StringIO(filename)
+        return form.submit()
+
+    def assert_ingredient(self, name, cost, size, supplier_name, type_):
+        if type_ == "Grain":
+            model = Grain
+        elif type_ == "Hop":
+            model = Hop
+        else:
+            raise ValueError()
+        new_ingredient = model.objects.get(name=name)
+        self.assertEqual(new_ingredient.unit_cost, cost)
+        self.assertEqual(new_ingredient.unit_size, size)
+        self.assertEqual(new_ingredient.supplier, Supplier.objects.get(name=supplier_name))
+
+    def assert_no_ingredient(self, name):
+        self.assertRaises(Ingredient.DoesNotExist, Ingredient.objects.get, name=name)
+
+    def test_ingredients_created(self):
+        self._login()
+        for name, cost, size, supplier_name, type_ in (('Test Grain', '12', 'sack', 'Gladfields', 'Grain'),
+                                                ('Test Hop', '23', 'Kg', 'NZ Hops', 'Hop')):
+            response = self.app.get(reverse('import_ingredients'))
+            with tempfile.TemporaryDirectory() as tempdir:
+                filename = self.create_csv(tempdir, [name, cost, size, supplier_name, type_])
+                response = self.submit_file_form(filename, response)
+                assert_code(response, FOUND)
+                self.assertIn(reverse('import_ingredients'), response['Location'])
+            self.assert_ingredient(name, float(cost), size, supplier_name, type_)
+
+    @raises(AppError)
+    def test_supplier_doesnt_exist_404(self):
+        self._login()
+        response = self.app.get(self.url)
+        with tempfile.TemporaryDirectory() as tempdir:
+            filename = self.create_csv(tempdir, ["Test Grain", 13, "Kg", "bad supplier", "Grain"])
+            self.submit_file_form(filename, response)
+
+    def test_bad_unit_size(self):
+        self._login()
+        response = self.app.get(self.url)
+        with tempfile.TemporaryDirectory() as tempdir:
+            filename = self.create_csv(tempdir, ["Test Grain", 13, "bad unit size", "Gladfields", "Grain"])
+            response = self.submit_file_form(filename, response)
+            assert_code(response, FOUND)
+            self.assertIn(reverse('import_ingredients'), response['Location'])
+        self.assert_no_ingredient("Test Grain")
+
+
+    def test_login_required(self):
+        response = self.app.get(self.url)
+        assert_code(response, FOUND)
+        self.assertIn(reverse('login'), response['Location'])
