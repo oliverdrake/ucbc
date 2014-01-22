@@ -279,8 +279,6 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
 
 
 class TestImportIngredientsFromCSV(_WebTest, _CommonMixin):
-    url = reverse('import_ingredients')
-
     def setUp(self):
         # super(TestSupplierOrderSummaryCSV, self).setUp()
         _CommonMixin.setUp(self)
@@ -299,53 +297,66 @@ class TestImportIngredientsFromCSV(_WebTest, _CommonMixin):
         form['file'] = StringIO(filename)
         return form.submit()
 
-    def assert_ingredient(self, name, cost, size, supplier_name, type_):
-        if type_ == "Grain":
-            model = Grain
-        elif type_ == "Hop":
-            model = Hop
-        else:
-            raise ValueError()
+    def _assert_ingredient(self, model, name, cost, size, supplier_name):
         new_ingredient = model.objects.get(name=name)
         self.assertEqual(new_ingredient.unit_cost, cost)
         self.assertEqual(new_ingredient.unit_size, size)
         self.assertEqual(new_ingredient.supplier, Supplier.objects.get(name=supplier_name))
 
+    def assert_grain(self, name, cost, size, supplier_name):
+        return self._assert_ingredient(Grain, name, cost, size, supplier_name)
+
+    def assert_hop(self, name, cost, size, supplier_name):
+        return self._assert_ingredient(Hop, name, cost, size, supplier_name)
+
     def assert_no_ingredient(self, name):
         self.assertRaises(Ingredient.DoesNotExist, Ingredient.objects.get, name=name)
 
-    def test_ingredients_created(self):
+    def test_grains_created(self):
         self._login()
-        for name, cost, size, supplier_name, type_ in (('Test Grain', '12', 'sack', 'Gladfields', 'Grain'),
-                                                ('Test Hop', '23', 'Kg', 'NZ Hops', 'Hop')):
-            response = self.app.get(reverse('import_ingredients'))
+        for name, cost, size, supplier_name in (('Test Grain', '12', 'sack', 'Gladfields'),
+                                                ('Test 2', '23', 'Kg', 'Gladfields')):
+            response = self.app.get(reverse('import_ingredients', args=('Grain',)))
             with tempfile.TemporaryDirectory() as tempdir:
-                filename = self.create_csv(tempdir, [name, cost, size, supplier_name, type_])
+                filename = self.create_csv(tempdir, [name, cost, size, supplier_name])
                 response = self.submit_file_form(filename, response)
                 assert_code(response, FOUND)
-                self.assertIn(reverse('import_ingredients'), response['Location'])
-            self.assert_ingredient(name, float(cost), size, supplier_name, type_)
+                self.assertIn(reverse('import_ingredients', args=('Grain',)), response['Location'])
+            self.assert_grain(name, float(cost), size, supplier_name)
+
+
+    def test_hops_created(self):
+        self._login()
+        for name, cost, size, supplier_name in (('Saaz', '12', '100g', 'NZ Hops'),
+                                                ('Test Hop', '23', 'Kg', 'NZ Hops')):
+            response = self.app.get(reverse('import_ingredients', args=('Hop',)))
+            with tempfile.TemporaryDirectory() as tempdir:
+                filename = self.create_csv(tempdir, [name, cost, size, supplier_name])
+                response = self.submit_file_form(filename, response)
+                assert_code(response, FOUND)
+                self.assertIn(reverse('import_ingredients', args=('Hop',)), response['Location'])
+            self.assert_hop(name, float(cost), size, supplier_name)
 
     @raises(AppError)
     def test_supplier_doesnt_exist_404(self):
         self._login()
-        response = self.app.get(self.url)
+        response = self.app.get(reverse('import_ingredients', args=('Grain',)))
         with tempfile.TemporaryDirectory() as tempdir:
-            filename = self.create_csv(tempdir, ["Test Grain", 13, "Kg", "bad supplier", "Grain"])
+            filename = self.create_csv(tempdir, ["Test Grain", 13, "Kg", "bad supplier"])
             self.submit_file_form(filename, response)
 
     def test_bad_unit_size(self):
         self._login()
-        response = self.app.get(self.url)
+        response = self.app.get(reverse('import_ingredients', args=('Grain',)))
         with tempfile.TemporaryDirectory() as tempdir:
-            filename = self.create_csv(tempdir, ["Test Grain", 13, "bad unit size", "Gladfields", "Grain"])
+            filename = self.create_csv(tempdir, ["Test Grain", 13, "bad unit size", "Gladfields"])
             response = self.submit_file_form(filename, response)
             assert_code(response, FOUND)
-            self.assertIn(reverse('import_ingredients'), response['Location'])
+            self.assertIn(reverse('import_ingredients', args=('Grain',)), response['Location'])
         self.assert_no_ingredient("Test Grain")
 
 
     def test_login_required(self):
-        response = self.app.get(self.url)
+        response = self.app.get(reverse('import_ingredients', args=('Hop',)))
         assert_code(response, FOUND)
         self.assertIn(reverse('login'), response['Location'])

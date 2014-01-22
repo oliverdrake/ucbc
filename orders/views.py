@@ -12,7 +12,7 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
@@ -210,21 +210,24 @@ def supplier_order_summary_csv(request, order_id):
 
 
 @login_required
-def import_ingredients_from_csv(request):
+def import_ingredients_from_csv(request, model_name):
+    if hasattr(models, model_name):
+        model_ = getattr(models, model_name)
+    else:
+        raise Http404()
+
     class UploadFileForm(forms.Form):
         file = forms.FileField()
+
+    class IngredientUploadForm(forms.ModelForm):
+        class Meta:
+            model = model_
 
     if request.method == "POST":
         contents = "".join([c.decode(encoding='UTF-8') for c in request.FILES['file'].chunks()])
         reader = csv.reader(StringIO(contents))
         for row in reader:
             if reader.line_num > 1:
-                model_ = getattr(models, row[4])
-
-                class IngredientUploadForm(forms.ModelForm):
-                    class Meta:
-                        model = model_
-
                 form = IngredientUploadForm(data={
                     'name': row[0],
                     'unit_cost': float(row[1]),
@@ -234,13 +237,14 @@ def import_ingredients_from_csv(request):
                 if form.is_valid():
                     form.save()
                 else:
-                    print(form.errors)
                     log.info("Import validation errors: %s" % form.errors)
         return HttpResponseRedirect('')
     else:
 
         form = UploadFileForm()
         return render(request, 'orders/import_ingredients.html', {'form': form})
+
+
 
 
 def _get_cart_from_session(request):
