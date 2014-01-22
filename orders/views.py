@@ -217,7 +217,7 @@ def import_ingredients_from_csv(request, model_name):
         raise Http404()
 
     class UploadFileForm(forms.Form):
-        file = forms.FileField()
+        file = forms.FileField(widget=forms.FileInput(attrs={"class": "form-control input-sm"}))
 
     class IngredientUploadForm(forms.ModelForm):
         class Meta:

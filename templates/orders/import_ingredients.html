@@ -1,8 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_site.html' %}
+{% load i18n admin_static admin_list bootstrapped_goodies_tags %}
+{% load url from future %}
+{% load admin_urls %}
 
-{% block container %}
+{% block bodyclass %}_change-list{% endblock %}
+
+{% block content %}
 <form method="POST" enctype="multipart/form-data">{% csrf_token %}
   {{ form }}
-  <button type="submit">Submit</button>
+  <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}
+
