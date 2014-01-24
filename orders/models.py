@@ -65,7 +65,15 @@ class Hop(Ingredient):
     ingredient_type = "hops"
 
 
-class SupplierOrder(models.Model):
+class _BaseOrder(models.Model):
+    class Meta:
+        abstract = True
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+
+class SupplierOrder(_BaseOrder):
     STATUS_PENDING = "pending"
     STATUS_ORDERED = "ordered"
     STATUS_ARRIVED = "arrived"
@@ -118,7 +126,7 @@ class SupplierOrder(models.Model):
         return "%s %d: %s (%s)" % (self.__class__.__name__, self.id, self.supplier.name, self.status)
 
 
-class UserOrder(models.Model):
+class UserOrder(_BaseOrder):
     STATUS_UNPAID = "unpaid"
     STATUS_PAID = "paid"
     status = models.CharField(
