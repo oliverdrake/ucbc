@@ -1,0 +1,19 @@
+{% load static from staticfiles %}
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-3" style="width: auto">
+        <a href="/">
+          <img class="img-responsive resize" src="{% static 'logo_med.png' %}">
+        </a>
+      </div>
+      <div class="col-sm-9">
+        <div class="row">
+          <div style="color: #ffffff; padding-top: 30px"><h1>University of Canterbury Brew Club</h1></div>
+        </div>
+        {% include 'navbar-menu.html' %}
+      </div>
+    </div>
+  </div>
+</div>

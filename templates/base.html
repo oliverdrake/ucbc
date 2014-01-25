@@ -50,94 +50,11 @@
   {% block body %}
 
   {% block navbar %}
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-3" style="width: auto">
-          <a href="/">
-            <img class="img-responsive resize" src="{% static 'logo_med.png' %}">
-          </a>
-        </div>
-        <div class="col-sm-9">
-          <div class="row">
-            <div style="color: #ffffff; padding-top: 30px"><h1>University of Canterbury Brew Club</h1></div>
-          </div>
-
-          <div class="row">
-
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-            </div>
-
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
-              <ul class="nav navbar-nav navbar-left">
-                <li{% if request.path == '/' %} class="active"{% endif %}>
-                  <a href="/">Home</a>
-                </li>
-                <li {% if '/orders' in request.path %} class="active"{% endif %} class="dropdown" id="ordersmenu">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Orders<b class="caret"></b></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="{% url 'order_grain' %}">Grains</a>
-                    </li>
-                    <li>
-                      <a href="{% url 'order_hops' %}">Hops</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="{% url 'orders.views.main' %}">About</a>
-                    </li>
-                  </ul>
-                <li class="dropdown{% if '/howto' in request.path %} active{% endif %}" id="howtomenu">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">How-tos<b class="caret"></b></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="{% url 'howto' 'howto.kit' %}">Kit brewing</a>
-                    </li>
-                    <li>
-                      <a href="{% url 'howto' 'howto.extract' %}">Extract</a>
-                    </li>
-                  </ul>
-                </li>
-                </li>
-                {% if request.user.is_staff %}
-                <li>
-                  <a href="{% url 'admin:index' %}">Admin</a>
-                </li>
-                {% endif %}
-                <li>
-
-                {% if user.is_authenticated %}
-
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    {% if request.user.first_name %}
-                      {{ request.user.first_name }}
-                    {% else %}
-                      {{ request.user.username }}
-                    {% endif %}
-                      <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="{% url 'logout' %}">Log out</a>
-                    </li>
-                  </ul>
-                {% else %}
-                  <a href="{% url 'login' %}">Log in</a>
-                {% endif %}
-                </li>
-              </ul>
-            </div><!--/.nav-collapse -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% if request.mobile %}
+    {% include 'navbar-mobile.html' %}
+  {% else %}
+    {% include 'navbar-desktop.html' %}
+  {% endif %}
   {% endblock %}
 
   <div id="wrap">
@@ -147,6 +64,8 @@
     </div>
   </div>
 
+  {% if not request.mobile %}
+    {% block footer %}
     <nav id="footer" class="navbar navbar-default navbar-fixed-bottom">
       <div class="navbar-inner navbar-content-center">
         <div class="row-fluid" id="footer_contents">
@@ -166,6 +85,8 @@
         </div>
       </div>
     </nav>
+    {% endblock %}
+  {% endif %}
 
   <!-- Bootstrap core JavaScript
   ================================================== -->

@@ -31,6 +31,7 @@ INSTALLED_APPS = (
     'south',
     'bootstrapform',
     'flatblocks',
+    'minidetector',
 
     'main',
     'orders',
@@ -43,6 +44,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'minidetector.Middleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
