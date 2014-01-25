@@ -1,6 +1,6 @@
 {% load static from staticfiles %}
 
-<div class="row">
+{#<div class="row">#}
 
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
@@ -11,8 +11,8 @@
     </button>
   </div>
 
-  <div class="collapse navbar-collapse navbar-ex1-collapse"{% if request.mobile %} style="margin-top: 0px !important;"{% endif %}>
-    <ul class="nav navbar-nav navbar-left">
+  <div class="collapse navbar-collapse navbar-ex1-collapse collapsed"{% if request.mobile %} style="margin-top: 0px !important;"{% endif %}>
+    <ul class="nav navbar-nav {% if request.mobile %}navbar-right{% else %}navbar-left{% endif %}">
       <li{% if request.path == '/' %} class="active"{% endif %}>
         <a href="/">Home</a>
       </li>
@@ -70,4 +70,4 @@
       </li>
     </ul>
   </div><!--/.nav-collapse -->
-</div>
+{#</div>#}

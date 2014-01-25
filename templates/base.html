@@ -18,7 +18,11 @@
         -moz-background-size: cover;
         -o-background-size: cover;
         background-size: cover;
+      {% if not request.mobile %}
         padding-top: 200px;
+      {% else %}
+        padding-top: 50px;
+      {% endif %}
       }
 
       .navbar-collapse {
