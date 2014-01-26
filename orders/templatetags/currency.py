@@ -63,3 +63,4 @@ def add_gst(amount):
         return ''
     except ValueError:
         return ''
+

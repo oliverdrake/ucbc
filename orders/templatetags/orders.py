@@ -1,5 +1,6 @@
 from django import template
 from orders import models
+from orders import utils
 
 register = template.Library()
 get_ingredient = models.Ingredient.objects.get
@@ -17,7 +18,7 @@ def ingredient_id(ingredient_name):
 
 @register.assignment_tag
 def order_item_total(ingredient_id, quantity):
-    unit_cost = float(get_ingredient(id=ingredient_id).unit_cost)
+    unit_cost = float(get_ingredient(id=ingredient_id).unit_cost_excl_gst_incl_surcharge)
     return unit_cost * float(quantity)
 
 
@@ -26,8 +27,7 @@ def order_total(formset):
     ingredient = lambda id_: get_ingredient(id=id_)
     ingredients = map(ingredient, [int(f['ingredient'].value()) for f in formset])
     quantities = [int(f['quantity'].value()) for f in formset]
-    total = lambda i, q: float(i.unit_cost) * q
-    return sum(map(total, ingredients, quantities))
+    return utils.order_total_incl_gst(ingredients, quantities)
 
 
 @register.assignment_tag

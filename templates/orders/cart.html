@@ -10,7 +10,7 @@
     <tr class="row">
       <th class="col-sm-7">Name</th>
       <th class="col-sm-2">Quantity</th>
-      <th class="col-sm-2">Total</th>
+      <th class="col-sm-2">Total (incl surcharges)</th>
       <th class="col-sm-1"/>
     </tr>
   </thead>
@@ -31,7 +31,7 @@
       <td/>
       <td><button type="submit" class="btn btn-default btn-sm">{{ cart_sub_but_text }}</button></td>
       {% order_total cart_formset as total %}
-      <td><strong style="vertical-align: middle">{{ total|add_gst|currency }}</strong></td>
+      <td><strong style="vertical-align: middle">{{ total|currency }}</strong></td>
       <td/>
     </tr>
   </tbody>

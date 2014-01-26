@@ -116,7 +116,10 @@ class OrderIngredientView(TemplateView):
 
     @property
     def initial(self):
-        return [dict(ingredient_name=i.name, quantity=0, unit_cost=i.unit_cost, unit_size=i.unit_size) for i in self.model.objects.all()]
+        return [dict(
+            ingredient_name=i.name,
+            quantity=0, unit_cost=i.unit_cost_excl_gst_incl_surcharge,
+            unit_size=i.unit_size) for i in self.model.objects.all()]
 
     @property
     def formset_class(self):
@@ -162,7 +165,7 @@ def checkout(request):
 def _email_order_confirmation(request, user_order):
     message = FlatBlock.objects.get(slug='orders.email.confirmation').content % dict(
         order_number=user_order.id,
-        total=add_gst(user_order.total),
+        total=user_order.total,
     )
     mail.send_mail(
         'Your UCBC Order #%d' % user_order.id,

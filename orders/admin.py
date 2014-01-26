@@ -1,6 +1,6 @@
 from functools import partial
 from django.contrib import admin, messages
-from .models import Grain, Hop, UserOrder, Supplier, OrderItem, SupplierOrder, OrdersEnabled
+from .models import Grain, Hop, UserOrder, Supplier, OrderItem, SupplierOrder, OrdersEnabled, Surcharge
 from orders.forms import SupplierOrderAdminForm
 
 
@@ -87,6 +87,14 @@ class OrdersEnabledAdmin(admin.ModelAdmin):
     def name(self, *args, **kwargs):
         return "Orders Enabled"
 
+
+class SurchargeAdmin(admin.ModelAdmin):
+    list_display = ("name", "surcharge_percentage", "order_surcharge")
+
+    def name(self, *args, **kwargs):
+        return "Surcharges"
+
+
 admin.site.register(Grain, IngredientAdmin)
 admin.site.register(Hop, IngredientAdmin)
 admin.site.register(UserOrder, UserOrderAdmin)
@@ -94,3 +102,4 @@ admin.site.register(Supplier)
 admin.site.register(SupplierOrder, SupplierOrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(OrdersEnabled, OrdersEnabledAdmin)
+admin.site.register(Surcharge, SurchargeAdmin)

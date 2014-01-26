@@ -53,6 +53,10 @@ class Ingredient(models.Model):
     def unit_cost_excl_gst(self):
         return "$%3.2f" % (self.unit_cost)
 
+    @property
+    def unit_cost_excl_gst_incl_surcharge(self):
+        return float(self.unit_cost) * Surcharge.get_factor()
+
     def __str__(self):
         return "%s (%s)" % (self.name, self.supplier.name)
 
@@ -140,8 +144,8 @@ class UserOrder(_BaseOrder):
 
     @property
     def total(self):
-        # ToDo: might be worth moving this into sql
-        return sum([o.total for o in self.order_items.all()])
+        from orders.utils import add_gst
+        return add_gst(sum([o.total for o in self.order_items.all()])) + Surcharge.get_order_surcharge()
 
     def username(self):
         return self.user.username
@@ -178,7 +182,7 @@ class OrderItem(models.Model):
     @property
     def total(self):
         """ Total Excluding GST """
-        return self.quantity * self.ingredient.unit_cost
+        return self.quantity * self.ingredient.unit_cost_excl_gst_incl_surcharge
 
     def username(self):
         return self.user_order.username()
@@ -210,4 +214,25 @@ class OrdersEnabled(models.Model):
 
     def save(self, *args, **kwargs):
         self.id = 1
-        super(OrdersEnabled, self).save(*args, **kwargs)
+        return super(OrdersEnabled, self).save(*args, **kwargs)
+
+
+class Surcharge(models.Model):
+    surcharge_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=False, null=False,
+                                               default=0.0, help_text="surcharge as a percentage cut of the order [0-100%]")
+    order_surcharge = models.DecimalField(max_digits=6, decimal_places=2, blank=False, null=False,
+                                          default=0.0, help_text="Surcharge in $ per order on top of percentage cut")
+
+    @classmethod
+    def get_surcharge_percentage(cls):
+        surcharge, _ = cls.objects.get_or_create(id=1)
+        return float(surcharge.surcharge_percentage)
+
+    @classmethod
+    def get_factor(cls):
+        return 1 + cls.get_surcharge_percentage() / 100
+
+    @classmethod
+    def get_order_surcharge(cls):
+        surcharge, _ = cls.objects.get_or_create(id=1)
+        return float(surcharge.order_surcharge)

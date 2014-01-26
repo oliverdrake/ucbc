@@ -4,12 +4,13 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from nose.tools import assert_equal, raises
-from orders.models import Ingredient, OrdersEnabled, OrderItem, UserOrder, SupplierOrder, Supplier, Grain, Hop
+from orders.models import Ingredient, OrdersEnabled, OrderItem, UserOrder, SupplierOrder, Supplier, Grain, Hop, Surcharge
+from orders.utils import add_gst
 
 User = get_user_model()
 
 
-class TestIngredient(object):
+class TestIngredient(TestCase):
     @staticmethod
     def test_unit_size_plural_kg():
         kg_plural = partial(Ingredient.unit_size_plural, Ingredient.UNIT_SIZE_KG)
@@ -52,16 +53,21 @@ class TestIngredient(object):
     def test_unit_size_plural_bad_string_quantity():
         Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, "sdf")
 
-    def test_ingredient_type_property(self):
+    @staticmethod
+    def test_ingredient_type_property():
         assert_equal("grain", Grain(name="grain").ingredient_type)
         assert_equal("hops", Hop(name="hops").ingredient_type)
+
+    def test_unit_cost_excl_gst_incl_surcharge(self):
+        Surcharge.objects.create(id=1, surcharge_percentage=3.4)
+        grain = Grain(name="test", unit_cost=46.85)
+        assert_equal(1.034 * 46.85, grain.unit_cost_excl_gst_incl_surcharge)
 
 
 class TestOrdersEnabled(TestCase):
     def test_is_singleton(self):
         one = OrdersEnabled.objects.create(enabled=False)
-        with self.assertRaises(IntegrityError):
-            OrdersEnabled.objects.create(enabled=True)
+        OrdersEnabled.objects.create(enabled=True)
         assert_equal(1, one.id)
 
     def test_is_enabled(self):
@@ -100,14 +106,19 @@ class TestOrderItem(TestCase):
 
 class TestUserOrder(TestCase):
     def test_order_total_gst_excl(self):
+        Surcharge.objects.get_or_create(id=1, surcharge_percentage=3.4, order_surcharge=11.80)
         supplier = Supplier.objects.create(name="testsupplier")
         order = UserOrder()
         order.user = User.objects.create_user("b")
         order.save()
-        create_order_item(order, supplier, 3.5, 2)
-        create_order_item(order, supplier, 2.1, 5)
+        create_order_item(order, supplier, unit_cost=3.5, quantity=2)
+        create_order_item(order, supplier, unit_cost=2.1, quantity=5)
         order.save()
-        assert_equal(17.5, order.total)
+        total = 3.5 * 2 + 2.1 * 5
+        total *= 1.034
+        total = add_gst(total)
+        total += 11.80
+        assert_equal(total, order.total)
 
 
 class TestSupplierOrder(TestCase):
@@ -144,3 +155,15 @@ class TestSupplierOrder(TestCase):
                 'Pilsener': (9, 27.0)
             },
             supplier_order.summary)
+
+
+def test_Surcharge():
+    assert_equal(0.0, Surcharge.get_surcharge_percentage())
+    assert_equal(1.0, Surcharge.get_factor())
+    assert_equal(0.0, Surcharge.get_surcharge_percentage())
+    assert_equal(1, Surcharge.objects.count())
+    Surcharge.objects.filter(id=1).update(surcharge_percentage=2.35, order_surcharge=23.50)
+    assert_equal(2.35, Surcharge.get_surcharge_percentage())
+    assert_equal(1.0235, Surcharge.get_factor())
+    assert_equal(23.50, Surcharge.get_order_surcharge())
+

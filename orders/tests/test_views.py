@@ -213,7 +213,7 @@ class TestCheckout(_WebTest):
 
         message = email_message % dict(
             order_number=order_number,
-            total=utils.add_gst(UserOrder.objects.get(id=order_number).total),
+            total=UserOrder.objects.get(id=order_number).total,
         )
         send_mail.assert_called_once_with(
             'Your UCBC Order #%d' % order_number,
