@@ -1,7 +1,7 @@
 {% load currency %}
 {% load orders %}
 
-<form method="post" action="{{ cart_form_url }}">{% csrf_token %}
+<form method="{{ form_method }}" action="{{ cart_form_url }}">{% csrf_token %}
   {{ cart_formset.management_form }}
   <h3>{{ cart_title }}</h3>
 
@@ -23,7 +23,7 @@
       {% order_item_total form.ingredient.value form.quantity.value as total %}
       <td class="col-sm-2">{{ total|add_gst|currency }}</td>
       <td class="col-sm-1">
-        <button name="ingredient_id" type="submit" value="{{ form.ingredient.value }}" formaction="{% url 'remove_item' %}" class="btn btn-default btn-sm">X</button>
+        <button name="ingredient_id" type="submit" value="{{ form.ingredient.value }}" formaction="{% url 'remove_item' %}" formmethod="post" class="btn btn-default btn-sm">X</button>
       </td>
     </tr>
   {% endfor %}

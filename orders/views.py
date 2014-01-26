@@ -5,8 +5,10 @@ from io import StringIO
 import logging
 # from bootstrap.future import SessionWizardView
 import mimetypes
+from urllib.parse import urljoin
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core import mail
@@ -20,10 +22,12 @@ from django.views.generic import TemplateView, ListView
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
 from flatblocks.models import FlatBlock
+from paypal.standard.forms import PayPalPaymentsForm
 
 from orders import models
 from orders.forms import CartItemForm, OrderItemFormset
 from orders.models import OrdersEnabled
+from orders.templatetags.orders import order_total
 from orders.utils import get_ingredient
 from orders.utils import add_gst
 
@@ -138,10 +142,36 @@ class Hops(OrderIngredientView):
     model = models.Hop
 
 
-@require_POST
+@require_GET
 @login_required
 def review_order(request):
     cart_formset = create_cart_formset(request)
+
+    # paypal_dict = {
+    #     "business": settings.PAYPAL_RECEIVER_EMAIL,
+    #     "amount": order_total(cart_formset),
+    #     "item_name": "Order #%d" % models.UserOrder.objects.count() + 1,
+    #     "invoice": "unique-invoice-id",
+    #     "notify_url": request.build_absolute_uri(reverse('paypal_ipn')),
+    #     "return_url": request.build_absolute_uri(reverse('order_complete')),
+    #     "cancel_return": request.get_full_path(),
+    #
+    # }
+
+    # Create the instance.
+    # form = PayPalPaymentsForm(initial={
+    #     "business": settings.PAYPAL_RECEIVER_EMAIL,
+    #     "amount": order_total(cart_formset),
+    #     "item_name": "Order #%d" % (models.UserOrder.objects.count() + 1),
+    #     "invoice": "unique-invoice-id",
+    #     "notify_url": request.build_absolute_uri('payment/ASD45623SDF7878aetrty/'),
+    #     "return_url": request.build_absolute_uri(reverse('checkout')),
+    #     "cancel_return": request.get_full_path(),
+    #
+    # })
+    # context = {"form": form}
+    # return render_to_response("payment.html", context)
+
     return render(request, 'orders/review_cart.html', {'cart_formset': cart_formset})
 
 
@@ -155,11 +185,34 @@ def checkout(request):
     if formset.is_valid():
         formset.save()
         del request.session['cart']
-        _email_order_confirmation(request, user_order)
-        return HttpResponseRedirect(redirect_to=reverse('order_complete', args=(formset.instance.id,)))
+
+
+
+        # _email_order_confirmation(request, user_order)
+        return HttpResponseRedirect(redirect_to=reverse('payment', args=(formset.instance.id,)))
     user_order.delete()
     # ToDo: email admin on failure
     return HttpResponseBadRequest('Could not complete your order')
+
+
+@require_GET
+@login_required
+def payment(request, order_id):
+    order_id = int(order_id)
+
+
+
+    form = PayPalPaymentsForm(initial={
+        "business": settings.PAYPAL_RECEIVER_EMAIL,
+        "amount": "%5.2f" % models.UserOrder.objects.get(id=order_id).total,
+        "item_name": "UCBC Grain/Hop Order #%d" % order_id,
+        "invoice": str(order_id),
+        "notify_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), 'payment/ASD45623SDF7878aetrty/'),
+        "return_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), ''),
+        "cancel_return": request.get_full_path(),
+
+    })
+    return render(request, 'orders/payment.html', {'form': form})
 
 
 def _email_order_confirmation(request, user_order):
@@ -246,8 +299,6 @@ def import_ingredients_from_csv(request, model_name):
 
         form = UploadFileForm()
         return render(request, 'orders/import_ingredients.html', {'form': form})
-
-
 
 
 def _get_cart_from_session(request):

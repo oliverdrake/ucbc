@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'bootstrapform',
     'flatblocks',
     'minidetector',
+    'paypal.standard.ipn',
 
     'main',
     'orders',
@@ -71,5 +72,5 @@ USE_TZ = True
 ADMIN_URL_PREFIX = "/admin/"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
+PAYPAL_RECEIVER_EMAIL = "president@ucbc.org.nz"
 

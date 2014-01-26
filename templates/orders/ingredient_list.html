@@ -46,7 +46,7 @@
   {% block cart %}
   <div class="col-md-5">
     {% url 'review_order' as cart_url %}
-    {% include 'orders/cart.html' with cart_title='My Order' cart_form_url=cart_url cart_sub_but_text='checkout'%}
+    {% include 'orders/cart.html' with cart_title='My Order' form_method='get' cart_form_url=cart_url cart_sub_but_text='checkout'%}
   {% endblock %}
   </div>
 </div>
