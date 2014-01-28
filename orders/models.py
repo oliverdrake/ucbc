@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+# Register Signals
+from paypal.standard.ipn.signals import payment_was_successful
+from orders import signals
+payment_was_successful.connect(signals.order_paid, dispatch_uid="paypal_payment_success")
+
 
 class Supplier(models.Model):
     name = models.CharField(max_length=255)

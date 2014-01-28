@@ -10,26 +10,21 @@ from urllib.parse import urljoin
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.formtools.wizard.views import SessionWizardView
-from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
-from flatblocks.models import FlatBlock
 from paypal.standard.forms import PayPalPaymentsForm
 
 from orders import models
 from orders.forms import CartItemForm, OrderItemFormset
 from orders.models import OrdersEnabled
-from orders.templatetags.orders import order_total
 from orders.utils import get_ingredient
-from orders.utils import add_gst
 
 log = logging.getLogger(__name__)
 
@@ -213,19 +208,6 @@ def payment(request, order_id):
 
     })
     return render(request, 'orders/payment.html', {'form': form})
-
-
-def _email_order_confirmation(request, user_order):
-    message = FlatBlock.objects.get(slug='orders.email.confirmation').content % dict(
-        order_number=user_order.id,
-        total=user_order.total,
-    )
-    mail.send_mail(
-        'Your UCBC Order #%d' % user_order.id,
-        message,
-        None,
-        [request.user.email,],
-        fail_silently=True)
 
 
 def order_complete(request, order_id):

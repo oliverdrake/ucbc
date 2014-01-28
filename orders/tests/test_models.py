@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from nose.tools import assert_equal, raises
+from paypal.standard.ipn.signals import payment_was_successful
 from orders.models import Ingredient, OrdersEnabled, OrderItem, UserOrder, SupplierOrder, Supplier, Grain, Hop, Surcharge
 from orders.utils import add_gst
 
