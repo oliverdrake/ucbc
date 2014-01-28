@@ -1,4 +1,4 @@
-# Requires python>=3.3
+# Requires python3.2
 django-twitter-bootstrap==3.0.0
 django-admin-bootstrapped==1.6.1
 South==0.8.3
