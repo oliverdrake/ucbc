@@ -141,32 +141,6 @@ class Hops(OrderIngredientView):
 @login_required
 def review_order(request):
     cart_formset = create_cart_formset(request)
-
-    # paypal_dict = {
-    #     "business": settings.PAYPAL_RECEIVER_EMAIL,
-    #     "amount": order_total(cart_formset),
-    #     "item_name": "Order #%d" % models.UserOrder.objects.count() + 1,
-    #     "invoice": "unique-invoice-id",
-    #     "notify_url": request.build_absolute_uri(reverse('paypal_ipn')),
-    #     "return_url": request.build_absolute_uri(reverse('order_complete')),
-    #     "cancel_return": request.get_full_path(),
-    #
-    # }
-
-    # Create the instance.
-    # form = PayPalPaymentsForm(initial={
-    #     "business": settings.PAYPAL_RECEIVER_EMAIL,
-    #     "amount": order_total(cart_formset),
-    #     "item_name": "Order #%d" % (models.UserOrder.objects.count() + 1),
-    #     "invoice": "unique-invoice-id",
-    #     "notify_url": request.build_absolute_uri('payment/ASD45623SDF7878aetrty/'),
-    #     "return_url": request.build_absolute_uri(reverse('checkout')),
-    #     "cancel_return": request.get_full_path(),
-    #
-    # })
-    # context = {"form": form}
-    # return render_to_response("payment.html", context)
-
     return render(request, 'orders/review_cart.html', {'cart_formset': cart_formset})
 
 
@@ -180,10 +154,6 @@ def checkout(request):
     if formset.is_valid():
         formset.save()
         del request.session['cart']
-
-
-
-        # _email_order_confirmation(request, user_order)
         return HttpResponseRedirect(redirect_to=reverse('payment', args=(formset.instance.id,)))
     user_order.delete()
     # ToDo: email admin on failure
@@ -194,9 +164,6 @@ def checkout(request):
 @login_required
 def payment(request, order_id):
     order_id = int(order_id)
-
-
-
     form = PayPalPaymentsForm(initial={
         "business": settings.PAYPAL_RECEIVER_EMAIL,
         "amount": "%5.2f" % models.UserOrder.objects.get(id=order_id).total,
