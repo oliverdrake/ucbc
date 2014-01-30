@@ -43,7 +43,12 @@ class SupplierOrderAdmin(admin.ModelAdmin):
             order, _ = supplier_orders.get_or_create(supplier=supplier)
             OrderItem.objects.filter(
                 supplier_order=None,
+                user_order__status=UserOrder.STATUS_PAID,
                 ingredient__supplier=supplier).update(supplier_order=order)
+            OrderItem.objects.filter(
+                supplier_order=order,
+                user_order__status=UserOrder.STATUS_UNPAID,
+                ingredient__supplier=supplier).update(supplier_order=None)
         return SupplierOrder.objects.all()
 
     def has_add_permission(self, request):
