@@ -72,5 +72,5 @@ USE_TZ = True
 ADMIN_URL_PREFIX = "/admin/"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-PAYPAL_RECEIVER_EMAIL = "president@ucbc.org.nz"
+PAYPAL_RECEIVER_EMAIL = "president-facilitator@ucbc.org.nz"
 
