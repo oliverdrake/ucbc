@@ -169,6 +169,7 @@ def payment(request, order_id):
         "amount": "%5.2f" % models.UserOrder.objects.get(id=order_id).total,
         "item_name": "UCBC Grain/Hop Order #%d" % order_id,
         "invoice": str(order_id),
+        "currency_code": "NZD",
         "notify_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), 'orders/payment/ASD45623SDF7878aetrty/'),
         "return_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), ''),
         "cancel_return": request.get_full_path(),
