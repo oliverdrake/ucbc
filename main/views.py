@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
 from django.template import RequestContext
@@ -21,3 +22,6 @@ def howto(request, name):
     return HttpResponseServerError('Error rendering the howto: %s' % name)
 
 
+def committee(request):
+    users = get_user_model().objects.filter(groups__name="Committee")
+    return render(request, 'main/committee.html', {'users': users})

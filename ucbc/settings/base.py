@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'flatblocks',
     'minidetector',
     'paypal.standard.ipn',
+    'gravatar',
 
     'main',
     'orders',

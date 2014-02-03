@@ -8,3 +8,4 @@ django-bootstrap-form==3.1
 django-extensions==1.2.5
 -e git+https://github.com/oliverdrake/minidetector.git#egg=minidetector
 -e git+https://github.com/oliverdrake/django-paypal.git#egg=paypal
+-e git+https://github.com/oliverdrake/django-gravatar.git#egg=gravatar
