@@ -61,13 +61,18 @@
         </a>
         <ul class="dropdown-menu">
           <li>
-            <a href="{% url 'logout' %}">Log out</a>
+            <a href="{% url 'account_logout' %}">Log out</a>
           </li>
         </ul>
       {% else %}
-        <a href="{% url 'login' %}">Log in</a>
+        <a href="{% url 'account_login' %}">Log in</a>
       {% endif %}
       </li>
+    {% if not user.is_authenticated %}
+      <li>
+        <a href="{% url 'account_signup' %}">Register</a>
+      </li>
+    {% endif %}
     </ul>
   </div><!--/.nav-collapse -->
 {#</div>#}

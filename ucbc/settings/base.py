@@ -37,6 +37,9 @@ INSTALLED_APPS = (
     'minidetector',
     'paypal.standard.ipn',
     'gravatar',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 
     'main',
     'orders',
@@ -62,6 +65,13 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.csrf',
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+)
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 )
 
 SITE_ID = 1

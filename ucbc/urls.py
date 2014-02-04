@@ -18,6 +18,5 @@ urlpatterns = patterns('',
     url(r'^orders/', include('orders.urls')),
     url(r'^committee/$', 'main.views.committee', name='committee'),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^login/$', 'django.contrib.auth.views.login', name="login"),
-    url(r'^logout/$', 'django.contrib.auth.views.logout', kwargs=dict(next_page="/"), name="logout"),
+    url(r'^accounts/', include('allauth.urls')),
 )
