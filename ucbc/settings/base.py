@@ -1,4 +1,5 @@
 import os
+from .secret import EMAIL_HOST_PASSWORD, SECRET_KEY, ORDER_EMAIL_HOST_PASSWORD
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"), )
 
@@ -14,6 +15,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@ucbc.org.nz'
 DEFAULT_FROM_EMAIL = 'admin@ucbc.org.nz'
+ORDER_FROM_EMAIL = 'orders@ucbc.org.nz'
+ORDER_EMAIL_HOST_USER = ORDER_FROM_EMAIL
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',

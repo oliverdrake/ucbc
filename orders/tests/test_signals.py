@@ -1,3 +1,4 @@
+from django.conf import settings
 import mock
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -52,9 +53,12 @@ class TestPaymentWasSuccessful(TestCase):
         self.__class__.send_mail.assert_called_once_with(
             'Your UCBC Order #%d' % self.user_order.id,
             message,
-            None,
+            settings.ORDER_FROM_EMAIL,
             [self.user.email],
-            fail_silently=True
+            fail_silently=True,
+            auth_user=settings.ORDER_EMAIL_HOST_USER,
+            auth_password=settings.ORDER_EMAIL_HOST_PASSWORD,
+            headers={'Cc': settings.ORDER_FROM_EMAIL},
         )
 
     @mock.patch("logging.getLogger")
