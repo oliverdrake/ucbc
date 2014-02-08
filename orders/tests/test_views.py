@@ -5,6 +5,7 @@ import mimetypes
 from io import StringIO
 import os
 import tempfile
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.client import Client
@@ -26,6 +27,7 @@ CHECKOUT_URL = reverse('checkout')
 class _CommonMixin(object):
     def setUp(self):
         self.user = User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
+        EmailAddress.objects.create(user=self.user, email=self.user.email, verified=True)
         self.gladfields = Supplier.objects.create(name="Gladfields")
         self.nzhops = Supplier.objects.create(name="NZ Hops")
         self.munich = Grain.objects.create(
@@ -54,7 +56,7 @@ class _IngredientGetBase(TestCase, _CommonMixin):
         self.client.logout()
 
     def test_not_logged_in_redirected_to_login_page(self):
-        expected_url = "%s?next=%s" % (reverse('login'), self.url)
+        expected_url = "%s?next=%s" % (reverse('account_login'), self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, expected_url)
         response = self.client.post(self.url, data={})
@@ -73,8 +75,8 @@ class _WebTest(WebTest, _CommonMixin):
         _CommonMixin.setUp(self)
 
     def _login(self):
-        form = self.app.get(reverse('login')).form
-        form['username'] = 'temporary'
+        form = self.app.get(reverse('account_login')).form
+        form['login'] = 'temporary'
         form['password'] = 'temporary'
         response = form.submit().follow()
         assert_code(response, OK)
@@ -347,4 +349,4 @@ class TestImportIngredientsFromCSV(_WebTest, _CommonMixin):
     def test_login_required(self):
         response = self.app.get(reverse('import_ingredients', args=('Hop',)))
         assert_code(response, FOUND)
-        self.assertIn(reverse('login'), response['Location'])
+        self.assertIn(reverse('account_login'), response['Location'])
