@@ -3,7 +3,7 @@ from .secret import EMAIL_HOST_PASSWORD, SECRET_KEY, ORDER_EMAIL_HOST_PASSWORD
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"), )
 
-LOGIN_URL = '/login/'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 DEBUG = False
@@ -87,4 +87,6 @@ ADMIN_URL_PREFIX = "/admin/"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 PAYPAL_RECEIVER_EMAIL = "orders-facilitator@ucbc.org.nz"
-
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_ADAPTER = "main.other.AuthAdaptor"

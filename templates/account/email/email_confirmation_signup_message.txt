@@ -1,0 +1,15 @@
+{% load account %}
+{% load i18n %}{% autoescape off %}
+Welcome to the UC Brew Club!
+
+Please click the link below to activate your account.
+
+{{ activate_url }}
+
+Your username and temporary password are:
+Username: {{ username }}
+Password: {{ password }}
+{% blocktrans with current_site.name as site_name %}
+Any questions or concerns, please visit our site {{ site_name }} for contact details.
+{% endblocktrans %}
+{% endautoescape %}

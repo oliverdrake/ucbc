@@ -68,11 +68,6 @@
         <a href="{% url 'account_login' %}">Log in</a>
       {% endif %}
       </li>
-    {% if not user.is_authenticated %}
-      <li>
-        <a href="{% url 'account_signup' %}">Register</a>
-      </li>
-    {% endif %}
     </ul>
   </div><!--/.nav-collapse -->
 {#</div>#}
