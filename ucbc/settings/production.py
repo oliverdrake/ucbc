@@ -1,6 +1,6 @@
 from .base import *
 
-ALLOWED_HOSTS = ['.amazonaws.com']
+ALLOWED_HOSTS = ['.amazonaws.com', 'ucbc.org.nz']
 
 DATABASES = {
     'default': {
