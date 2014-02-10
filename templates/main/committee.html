@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load gravatar %}
+
+{% block container %}
+
+<style type="text/css">
+.vcenter {
+    float:none;
+    display:inline-block;
+    vertical-align:middle;
+    margin-right:-4px;
+}
+.center-row {
+	display:table;
+}
+.center {
+	display:table-cell;
+    vertical-align:middle;
+    float:none;
+}
+</style>
+
+<div class="row center-row">
+
+  <div class="col-lg-3 center">
+
+  </div>
+  <div class="col-lg-9 center">
+    <h3>Meet the Committee</h3>
+  </div>
+</div>
+
+{% for user in users %}
+  <div class="row center-row" style="padding: 15px">
+    <div class="col-md-4 center">
+      <img src="{% gravatar_for_user user %}" style="float: right;">
+    </div>
+    <div class="col-md-8 center">
+      <div class="center-row">
+        <a href="mailto:{{ user.email }}">{{ user.first_name }}</a>
+      </div>
+      {% if user.role %}
+      <div class="center-row">
+        {{ user.role.name }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+
+{% endblock %}
