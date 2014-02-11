@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block container %}
+
+<div class="row">
+  <div class="col-lg-8 col-lg-offset-2">
+    <h3>Order History</h3>
+    <table class="table">
+      <thead>
+      <tr class="row">
+        <th class="col-sm-6">Created</th>
+        <th class="col-sm-4">Total (in. GST)</th>
+        <th class="col-sm-2">Paid</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for order in object_list %}
+        <tr class="row">
+          <td class="col-sm-8"><a href="{% url 'order' order.id %}">{{ order.created }}</a></td>
+          <td class="col-sm-2">{{ order.total|currency }}</td>
+          <td class="col-sm-2">{{ order.status }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

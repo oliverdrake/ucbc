@@ -16,7 +16,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
 from paypal.standard.forms import PayPalPaymentsForm
@@ -197,6 +197,31 @@ def cart_delete_item(request):
     if 'HTTP_REFERER' in request.META:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return HttpResponse()
+
+
+class UserOrderListView(ListView):
+    model = models.UserOrder
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user).order_by('-created')
+
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        return super(UserOrderListView, self).get(request, *args, **kwargs)
+
+
+class UserOrderItemListView(ListView):
+    model = models.OrderItem
+
+    def get_queryset(self):
+        user_order = models.UserOrder.objects.get(id=self.user_order_id)
+        return self.model.objects.filter(user_order=user_order)
+
+    @method_decorator(login_required)
+    def get(self, request, order_id, *args, **kwargs):
+        self.user_order_id = int(order_id)
+        return super(UserOrderItemListView, self).get(request, *args, **kwargs)
+
 
 
 @require_GET

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block container %}
+
+<div class="row">
+  <div class="col-lg-8 col-lg-offset-2">
+    <h3>Order Status</h3>
+    <table class="table">
+      <thead>
+      <tr class="row">
+        <th class="col-sm-8">Created</th>
+        <th class="col-sm-2">Quantity</th>
+        <th class="col-sm-2">Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for order_item in object_list %}
+        <tr class="row">
+          <td class="col-sm-8">{{ order_item.ingredient.name }}</td>
+          <td class="col-sm-2">{{ order_item.quantity }}</td>
+          <td class="col-sm-2">{{ order_item.supplier_order.status }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
