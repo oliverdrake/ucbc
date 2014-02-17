@@ -44,6 +44,11 @@
         {{ user.role.name }}
       </div>
       {% endif %}
+      {% if user.brewtoad_account %}
+      <div class="center-row">
+        <a href="{{ user.brewtoad_account.url }}">Brewtoad</a>
+      </div>
+      {% endif %}
     </div>
   </div>
 {% endfor %}
