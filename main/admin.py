@@ -12,7 +12,15 @@ class UCBCUserAdmin(UserAdmin):
         return ", ".join([str(group.name) for group in user.groups.all()])
     get_groups.short_description = "Groups"
 
+
+class UserRoleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user')
+
+
+class BrewtoadAccountAdmin(admin.ModelAdmin):
+    list_display = ('brewtoad_user_id', 'user')
+
 admin.site.unregister(get_user_model())
 admin.site.register(get_user_model(), UCBCUserAdmin)
-admin.site.register(UserRole)
-admin.site.register(BrewtoadAccount)
+admin.site.register(UserRole, UserRoleAdmin)
+admin.site.register(BrewtoadAccount, BrewtoadAccountAdmin)
