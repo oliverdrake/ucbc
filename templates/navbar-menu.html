@@ -61,6 +61,9 @@
           <li>
             <a href="{% url 'account_logout' %}">Log out</a>
           </li>
+          <li>
+            <a href="{% url 'account_change_password' %}">Change password</a>
+          </li>
         </ul>
       {% else %}
         <a href="{% url 'account_login' %}">Log in</a>
