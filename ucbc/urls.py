@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     url(r'^orders/', include('orders.urls')),
     url(r'^committee/$', 'main.views.committee', name='committee'),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/signup/', 'django.views.defaults.page_not_found'),
     url(r'^accounts/', include('allauth.urls')),
 )
