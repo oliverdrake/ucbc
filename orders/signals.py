@@ -36,8 +36,7 @@ def _email_order_confirmation(user_order):
         'Your UCBC Order #%d' % user_order.id,
         message,
         settings.ORDER_FROM_EMAIL,
-        [user_order.user.email],
+        [user_order.user.email, settings.ORDER_FROM_EMAIL],
         fail_silently=True,
         auth_user=settings.ORDER_EMAIL_HOST_USER,
-        auth_password=settings.ORDER_EMAIL_HOST_PASSWORD,
-        headers={'Cc': settings.ORDER_FROM_EMAIL})
+        auth_password=settings.ORDER_EMAIL_HOST_PASSWORD)

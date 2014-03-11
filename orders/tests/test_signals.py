@@ -54,11 +54,10 @@ class TestPaymentWasSuccessful(TestCase):
             'Your UCBC Order #%d' % self.user_order.id,
             message,
             settings.ORDER_FROM_EMAIL,
-            [self.user.email],
+            [self.user.email, settings.ORDER_FROM_EMAIL],
             fail_silently=True,
             auth_user=settings.ORDER_EMAIL_HOST_USER,
             auth_password=settings.ORDER_EMAIL_HOST_PASSWORD,
-            headers={'Cc': settings.ORDER_FROM_EMAIL},
         )
 
     @mock.patch("logging.getLogger")
