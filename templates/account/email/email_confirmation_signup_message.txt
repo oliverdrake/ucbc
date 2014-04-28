@@ -1,15 +1,24 @@
 {% load account %}
 {% load i18n %}{% autoescape off %}
-Welcome to the UC Brew Club!
-
-Please click the link below to activate your account.
-
-{{ activate_url }}
+Hey {{ first_name }},
+{% blocktrans with current_site.name as site_name %}
+We've created a login account for you on our website: http://{{ site_name }}/.
 
 Your username and temporary password are:
 Username: {{ username }}
 Password: {{ password }}
-{% blocktrans with current_site.name as site_name %}
-Any questions or concerns, please visit our site {{ site_name }} for contact details.
-{% endblocktrans %}
-{% endautoescape %}
+
+You should be able to log in to our site http://{{ site_name }}/ using your temporary password, then use
+the password change form from the dropdown menu to change your password.
+
+You'll need to be able to log in if you want to order hops or grains (we should hopefully be doing
+an order soon at crazy cheap prices). Keep an eye on our facebook group to find out when this is
+happening, then you'll be able to place your order with us through the website.
+
+Any questions or problems don't hesitate to email Oli (the web admin) (admin@ucbc.org.nz) or message
+one of the committee members.
+{% endblocktrans %}{% endautoescape %}
+Hope to see you at the tutorial this sunday,
+Cheers and happy brewing,
+
+The UCBC Team
