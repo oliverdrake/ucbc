@@ -3,7 +3,6 @@ from functools import wraps
 from http.client import OK, CREATED, BAD_REQUEST
 from io import StringIO
 import logging
-# from bootstrap.future import SessionWizardView
 import mimetypes
 from urllib.parse import urljoin
 
@@ -232,11 +231,10 @@ def supplier_order_summary_csv(request, order_id):
     response['Content-Disposition'] = 'attachment; filename="%s_order.csv"' % order.supplier.name
 
     writer = csv.writer(response)
-    writer.writerow(['Name', 'Quantity'])
+    writer.writerow(['Name', "Unit Size", 'Quantity'])
     for name, (quantity, total) in order.summary.items():
         ingredient = models.Ingredient.objects.get(name=name)
-        humanized_quantity = models.Ingredient.unit_size_plural(ingredient.unit_size, quantity)
-        writer.writerow([name, humanized_quantity])
+        writer.writerow([name, ingredient.unit_size, quantity])
     return response
 
 
