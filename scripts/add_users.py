@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.core import mail
 from django.contrib.sites.models import Site
 
-base_url = 'http://localhost:8000/'
+#base_url = 'http://localhost:8000/'
 CC = "admin@ucbc.org.nz"
 
 
@@ -75,11 +75,10 @@ def create_and_email_user(first, last, email):
 
 
 def main():
-    with open('test.csv', 'r') as csvfile:
+    with open('brew_club_sign.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
         for first, last, email in reader:
-            email = (last.strip()).strip()
             create_and_email_user(first.strip(), last.strip(), email.strip())
 
 
