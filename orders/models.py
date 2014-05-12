@@ -39,16 +39,21 @@ class Ingredient(models.Model):
         quantity = int(quantity)
         if quantity <= 0:
             raise ValueError("invalid quantity: %d" % quantity)
-        if unit_size in (Ingredient.UNIT_SIZE_SACK, Ingredient.UNIT_SIZE_KG):
+        if unit_size == Ingredient.UNIT_SIZE_SACK:
             if quantity is not 1:
                 unit_size = unit_size + "s"
             return "%d %s" % (quantity, unit_size)
+        elif unit_size == Ingredient.UNIT_SIZE_KG:
+            if quantity == 1:
+                return "1 Kg"
+            return "%dx 1Kg" % quantity
         elif unit_size == Ingredient.UNIT_SIZE_100G:
-            if quantity < 10:
-                return "%d00 grams" % quantity
+            if quantity == 0:
+                return "0"
+            elif quantity == 1:
+                return "100g"
             else:
-                quantity = float(quantity) / 10
-                return "%3.1f Kg" % quantity
+                return "%dx 100g" % quantity
         else:
             raise ValueError("invalid unit size: %s" % unit_size)
 

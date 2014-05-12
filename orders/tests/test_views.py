@@ -190,9 +190,6 @@ class TestCartDeleteItem(_WebTest):
 class TestCheckout(_WebTest):
     @mock.patch('django.core.mail.send_mail')
     def test_email_sent(self, send_mail):
-        from flatblocks.models import FlatBlock
-
-
         self._login()
         # Add some hops to cart:
         response = self.app.get(ORDER_HOPS_URL)
@@ -210,7 +207,6 @@ class TestCheckout(_WebTest):
         cart_form = response.forms.get(0)
         cart_form.submit()
         order_number = UserOrder.objects.count()
-
 
         self.assertGreater(UserOrder.objects.get(id=order_number).total, 0)
 
@@ -256,8 +252,8 @@ class TestSupplierOrderSummaryCSV(TestCase, _CommonMixin):
         response_body = response.content.decode(encoding='UTF-8')
         f = StringIO(response_body)
         reader = csv.reader(f)
-        self.assertIn(["Name", "Quantity"], reader)
-        self.assertIn(["Munich", "12 sacks"], reader)
+        self.assertIn(["Name", "Unit Size", "Quantity"], reader)
+        self.assertIn(["Munich", "sack", "12"], reader)
 
     def test_login_required(self):
         order = SupplierOrder.objects.create(
