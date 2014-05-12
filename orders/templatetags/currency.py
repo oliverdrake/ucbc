@@ -43,6 +43,9 @@ def currency(value, arg = '', symbol = True):
     if saved == (None, None) and given == '':
         given = 'en_US.UTF-8'
 
+    if given == '':
+        given = None
+
     try:
         locale.setlocale(locale.LC_ALL, given)
 
