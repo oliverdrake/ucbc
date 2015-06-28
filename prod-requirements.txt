@@ -1,4 +1,5 @@
 # Requires python3.2
+Django==1.6.2
 django-twitter-bootstrap==3.0.0
 django-admin-bootstrapped==1.6.1
 South==0.8.4

@@ -11,6 +11,9 @@ Password: {{ password }}
 You should be able to log in to our site http://{{ site_name }}/ using your temporary password, then use
 the password change form from the dropdown menu to change your password.
 
+If you had an existing account with us last year, you're old password should
+still work.
+
 You'll need to be able to log in if you want to order hops or grains (we should hopefully be doing
 an order soon at crazy cheap prices). Keep an eye on our facebook group to find out when this is
 happening, then you'll be able to place your order with us through the website.
@@ -18,7 +21,7 @@ happening, then you'll be able to place your order with us through the website.
 Any questions or problems don't hesitate to email Oli (the web admin) (admin@ucbc.org.nz) or message
 one of the committee members.
 {% endblocktrans %}{% endautoescape %}
-Hope to see you at the tutorial this sunday,
+
 Cheers and happy brewing,
 
-The UCBC Team
+The UCBC Committee

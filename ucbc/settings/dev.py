@@ -6,7 +6,7 @@ DEBUG = True
 INSTALLED_APPS += (
     'debug_toolbar',
     'django_nose',
-    'django_webtest',
+    # 'django_webtest',
     'django_extensions',
 )
 
