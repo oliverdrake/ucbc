@@ -27,7 +27,7 @@ class TestPaymentWasSuccessful(TestCase):
         self.user_order = UserOrder.objects.create(
             user=self.user)
         OrderItem.objects.create(
-            ingredient=Ingredient.objects.create(name="Munich", unit_cost=2, unit_size=Ingredient.UNIT_SIZE_SACK),
+            ingredient=Ingredient.objects.create(name="Munich", unit_cost=2, unit_size="sack"),
             quantity=5,
             user_order=self.user_order)
         assert_equal(UserOrder.STATUS_UNPAID, self.user_order.status)

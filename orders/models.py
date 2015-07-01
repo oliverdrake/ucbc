@@ -14,10 +14,50 @@ class Supplier(models.Model):
         return self.name
 
 
+class _UnitSizeSack(object):
+    name = "sack"
+    description = "Sack (25Kg)"
+
+    def plural(self, quantity):
+        unit_size = self.name
+        if quantity is not 1:
+            unit_size = self.name + "s"
+        return "%d %s" % (quantity, unit_size)
+
+
+class _UnitSizeKg(object):
+    name = "Kg"
+    description = "1 Kg"
+
+    def plural(self, quantity):
+        if quantity == 1:
+            return "1 Kg"
+        return "%dx 1Kg" % quantity
+
+
+class _UnitSize100G(object):
+    name = "100g"
+    description = "100 gram"
+
+    def plural(self, quantity):
+        if quantity == 0:
+            return "0"
+        elif quantity == 1:
+            return "100g"
+        else:
+            return "%dx 100g" % quantity
+
+
+class _UnitSize5Kg(object):
+    name = "5Kg"
+    description = ("5Kg bag")
+
+    def plural(self, quantity):
+        return "%dx 5Kg bag%s" % (quantity, 's' if quantity > 1 else '')
+
+
 class Ingredient(models.Model):
-    UNIT_SIZE_KG = "Kg"
-    UNIT_SIZE_SACK = "sack"
-    UNIT_SIZE_100G = "100g"
+    UNITS = (_UnitSizeSack(), _UnitSizeKg(), _UnitSize100G(), _UnitSize5Kg())
 
     name = models.CharField(max_length=255, blank=False, unique=True)
     unit_cost = models.DecimalField(
@@ -27,10 +67,7 @@ class Ingredient(models.Model):
         verbose_name="Unit Cost (NZD) (excl. GST)")
     unit_size = models.CharField(
         max_length=255,
-        choices=(
-            (UNIT_SIZE_KG, "1 Kg"),
-            (UNIT_SIZE_SACK, "Sack (25Kg)"),
-            (UNIT_SIZE_100G, "100 gram")),
+        choices=((u.name, u.description) for u in UNITS),
         blank=False, null=True)
     supplier = models.ForeignKey(Supplier, related_name="ingredients", blank=False, null=True, default=None)
 
@@ -39,23 +76,12 @@ class Ingredient(models.Model):
         quantity = int(quantity)
         if quantity <= 0:
             raise ValueError("invalid quantity: %d" % quantity)
-        if unit_size == Ingredient.UNIT_SIZE_SACK:
-            if quantity is not 1:
-                unit_size = unit_size + "s"
-            return "%d %s" % (quantity, unit_size)
-        elif unit_size == Ingredient.UNIT_SIZE_KG:
-            if quantity == 1:
-                return "1 Kg"
-            return "%dx 1Kg" % quantity
-        elif unit_size == Ingredient.UNIT_SIZE_100G:
-            if quantity == 0:
-                return "0"
-            elif quantity == 1:
-                return "100g"
-            else:
-                return "%dx 100g" % quantity
-        else:
-            raise ValueError("invalid unit size: %s" % unit_size)
+
+        try:
+            unit = next(filter(lambda u: u.name == unit_size, Ingredient.UNITS))
+        except StopIteration:
+            raise ValueError("Invalid/unknown unit_size: %s" % unit_size)
+        return unit.plural(quantity)
 
     def supplier_name(self):
         return self.supplier.name

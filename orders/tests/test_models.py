@@ -14,21 +14,21 @@ User = get_user_model()
 class TestIngredient(TestCase):
     @staticmethod
     def test_unit_size_plural_kg():
-        kg_plural = partial(Ingredient.unit_size_plural, Ingredient.UNIT_SIZE_KG)
+        kg_plural = partial(Ingredient.unit_size_plural, "Kg")
         assert_equal("1 Kg", kg_plural(1))
         assert_equal("2x 1Kg", kg_plural(2))
         assert_equal("23x 1Kg", kg_plural(23))
 
     @staticmethod
     def test_unit_size_plural_sack():
-        sack_plural = partial(Ingredient.unit_size_plural, Ingredient.UNIT_SIZE_SACK)
+        sack_plural = partial(Ingredient.unit_size_plural, "sack")
         assert_equal("1 sack", sack_plural(1))
         assert_equal("2 sacks", sack_plural(2))
         assert_equal("23 sacks", sack_plural(23))
 
     @staticmethod
     def test_unit_size_plural_100g():
-        gram_plural = partial(Ingredient.unit_size_plural, Ingredient.UNIT_SIZE_100G)
+        gram_plural = partial(Ingredient.unit_size_plural, "100g")
         assert_equal("100g", gram_plural(1))
         assert_equal("2x 100g", gram_plural(2))
         assert_equal("23x 100g", gram_plural(23))
@@ -42,17 +42,17 @@ class TestIngredient(TestCase):
     @staticmethod
     @raises(ValueError)
     def test_unit_size_plural_neg_quantity():
-        Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, -2)
+        Ingredient.unit_size_plural("sack", -2)
 
     @staticmethod
     @raises(ValueError)
     def test_unit_size_plural_zero_quantity():
-        Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, 0)
+        Ingredient.unit_size_plural("sack", 0)
 
     @staticmethod
     @raises(ValueError)
     def test_unit_size_plural_bad_string_quantity():
-        Ingredient.unit_size_plural(Ingredient.UNIT_SIZE_SACK, "sdf")
+        Ingredient.unit_size_plural("sack", "sdf")
 
     @staticmethod
     def test_ingredient_type_property():
@@ -167,4 +167,3 @@ def test_Surcharge():
     assert_equal(2.35, Surcharge.get_surcharge_percentage())
     assert_equal(1.0235, Surcharge.get_factor())
     assert_equal(23.50, Surcharge.get_order_surcharge())
-

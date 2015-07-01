@@ -10,11 +10,11 @@ class TestGetIngredient(TestCase):
         self.cryer = Supplier(name="Cryer")
 
     def test_no_grain(self):
-        hop = Hop.objects.create(name="saaz", unit_cost=12.3, unit_size=Ingredient.UNIT_SIZE_100G, supplier=self.nzhops)
+        hop = Hop.objects.create(name="saaz", unit_cost=12.3, unit_size="100g", supplier=self.nzhops)
         assert_equal(hop, get_ingredient("saaz"))
 
     def test_no_hops(self):
-        grain = Grain.objects.create(name="munich", unit_cost=12.3, unit_size=Ingredient.UNIT_SIZE_SACK, supplier=self.cryer)
+        grain = Grain.objects.create(name="munich", unit_cost=12.3, unit_size="sack", supplier=self.cryer)
         assert_equal(grain, get_ingredient("munich"))
 
     @raises(Grain.DoesNotExist)
@@ -26,8 +26,8 @@ def test_order_total():
     nzhops = Supplier.objects.create(name="NZ Hops")
     cryer = Supplier.objects.create(name="Cryer")
     Surcharge.objects.filter(id=1).update(surcharge_percentage=4.7, order_surcharge=12.70)
-    grain = Grain.objects.create(name="munich", unit_cost=12.3, unit_size=Ingredient.UNIT_SIZE_SACK, supplier=cryer)
-    hop = Hop.objects.create(name="saaz", unit_cost=34.4, unit_size=Ingredient.UNIT_SIZE_100G, supplier=nzhops)
+    grain = Grain.objects.create(name="munich", unit_cost=12.3, unit_size="sack", supplier=cryer)
+    hop = Hop.objects.create(name="saaz", unit_cost=34.4, unit_size="100g", supplier=nzhops)
     total = order_total_incl_gst([grain, hop], [5, 6])
     expected_total = grain.unit_cost * 5 + hop.unit_cost * 6
     expected_total *= 1.047

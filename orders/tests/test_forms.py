@@ -14,12 +14,12 @@ class TestSupplierOrderAdminForm(TestCase):
         munich = Grain.objects.create(
             name="Munich",
             unit_cost=36,
-            unit_size=Ingredient.UNIT_SIZE_SACK,
+            unit_size="sack",
             supplier=supplier)
         saaz = Hop.objects.create(
             name="Saaz",
             unit_cost=10,
-            unit_size=Ingredient.UNIT_SIZE_100G,
+            unit_size="100g",
             supplier=supplier)
         user = get_user_model().objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
         user_order = UserOrder.objects.create(user=user)
