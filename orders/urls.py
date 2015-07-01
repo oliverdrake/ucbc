@@ -9,7 +9,8 @@ RANDOM_PAYPAL_URI = ''.join(random.choice(string.ascii_uppercase + string.digits
 
 urlpatterns = patterns('',
     url(r'^$', 'orders.views.main'),
-    url(r'^grains/$', views.Grains.as_view(), name='order_grain'),
+    url(r'^gladfield/$', views.Gladfield.as_view(), name='order_gladfield'),
+    url(r'^cryer/$', views.Cryer.as_view(), name='order_cryer'),
     url(r'^hops/$', views.Hops.as_view(), name='order_hops'),
     url(r'^cart/review/$', 'orders.views.review_order', name='review_order'),
     url(r'^cart/delete/$', 'orders.views.cart_delete_item', name='remove_item'),

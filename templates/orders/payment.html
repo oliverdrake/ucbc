@@ -3,8 +3,19 @@
 {% block container %}
 <h3>Payment</h3>
 
-<p>Thank you for your order. Please click on the link below to proceed to payment.</p>
+<p>Thank you for your order.</p>
 
-{{ form.render }}
+<p>Please transfer a total of <strong>${{ order.total|floatformat:"-2" }}</strong> into our bank account:</p>
+
+<p>
+03-0823-0657580-000
+</p>
+
+<p>Make sure you include your order number (<strong>{{order.id}}</strong>)
+in the reference</p>
+
+<p><strong>Note:</strong> Your order will automatically be excluded from any
+outgoing orders to our suppliers until your payment has been confirmed, so make
+sure you pay as soon as possible. Any problems get in touch with us via facebook or email.</p>
 
 {% endblock %}

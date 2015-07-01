@@ -1,0 +1,13 @@
+Thank you for your order.
+
+Please transfer a total of ${{ order.total|floatformat:"-2" }} into our bank account:
+
+03-0823-0657580-000
+
+Make sure you include your order number ({{order.id}}) in the reference.
+
+Note: Your order will automatically be excluded from any outgoing orders to our suppliers
+until your payment has been confirmed, so make sure you pay as soon as possible.
+Any problems get in touch with us via facebook or email.
+
+Happy Brewing

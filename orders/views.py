@@ -17,6 +17,8 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView
 from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.core import mail
 from django.views.decorators.http import require_POST, require_GET
 from paypal.standard.forms import PayPalPaymentsForm
 
@@ -73,7 +75,6 @@ def create_cart_formset(request, user_order=None):
 
 class OrderIngredientView(TemplateView):
     http_method_names = ['get', 'post']
-    model = None
 
     @staticmethod
     def _update_session(formset, request):
@@ -117,7 +118,7 @@ class OrderIngredientView(TemplateView):
         return [dict(
             ingredient_name=i.name,
             quantity=0, unit_cost=i.unit_cost_excl_gst_incl_surcharge,
-            unit_size=i.unit_size) for i in self.model.objects.all()]
+            unit_size=i.unit_size) for i in self.queryset.all()]
 
     @property
     def formset_class(self):
@@ -128,12 +129,16 @@ class OrderIngredientView(TemplateView):
         return self.__class__.__name__
 
 
-class Grains(OrderIngredientView):
-    model = models.Grain
+class Gladfield(OrderIngredientView):
+    queryset = models.Grain.objects.filter(supplier__name='Gladfields')
+
+
+class Cryer(OrderIngredientView):
+    queryset = models.Grain.objects.filter(supplier__name='Cryer')
 
 
 class Hops(OrderIngredientView):
-    model = models.Hop
+    queryset = models.Hop.objects.all()
 
 
 @require_GET
@@ -162,19 +167,19 @@ def checkout(request):
 @require_GET
 @login_required
 def payment(request, order_id):
-    order_id = int(order_id)
-    form = PayPalPaymentsForm(initial={
-        "business": settings.PAYPAL_RECEIVER_EMAIL,
-        "amount": "%5.2f" % models.UserOrder.objects.get(id=order_id).total,
-        "item_name": "UCBC Grain/Hop Order #%d" % order_id,
-        "invoice": str(order_id),
-        "currency_code": "NZD",
-        "notify_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), 'orders/payment/ASD45623SDF7878aetrty/'),
-        "return_url": urljoin(request.META['wsgi.url_scheme'] + "://" + request.get_host(), ''),
-        "cancel_return": request.get_full_path(),
+    order = models.UserOrder.objects.get(id=int(order_id))
 
-    })
-    return render(request, 'orders/payment.html', {'form': form})
+    message = render_to_string(
+        'orders/email/order_confirmation.txt',
+        {'order': order})
+    mail.send_mail(
+        'Order confirmation for order #%d' % order.id,
+        message,
+        None,
+        [request.user.email],
+        fail_silently=False)
+
+    return render(request, 'orders/payment.html', {'order': order})
 
 
 def order_complete(request, order_id):
