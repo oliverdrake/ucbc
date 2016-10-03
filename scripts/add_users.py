@@ -100,9 +100,5 @@ def main():
         for first, last, username, email in reader:
             create_and_email_user(first.strip(), last.strip(), email.strip())
 
-
-
-
-
 if __name__ == "__main__":
     main()

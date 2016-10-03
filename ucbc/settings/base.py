@@ -10,13 +10,7 @@ DEBUG = False
 TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1']
 APPEND_SLASH = True
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'admin@ucbc.org.nz'
-DEFAULT_FROM_EMAIL = 'admin@ucbc.org.nz'
-ORDER_FROM_EMAIL = 'orders@ucbc.org.nz'
-ORDER_EMAIL_HOST_USER = ORDER_FROM_EMAIL
+
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',

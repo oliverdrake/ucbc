@@ -9,6 +9,14 @@ DATABASES = {
     }
 }
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@ucbc.org.nz'
+DEFAULT_FROM_EMAIL = 'admin@ucbc.org.nz'
+ORDER_FROM_EMAIL = 'orders@ucbc.org.nz'
+ORDER_EMAIL_HOST_USER = ORDER_FROM_EMAIL
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
